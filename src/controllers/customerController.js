@@ -1,11 +1,12 @@
 const Customer = require('../models/Customer');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const { VerificationCode } = require('../services/Twilio');
+const { createCustomer } = require('../services/customer');
 
 exports.login = async (req, res) => {
     const { email, phone, password } = req.body;
     try {
-        // Allow login by email or phone
         const customer = await Customer.findOne({
             $or: [
                 { email: email || null },
@@ -30,7 +31,21 @@ exports.login = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
-exports.signup = (req, res) => res.send('Customer signup');
+exports.signup = async (req, res) => {
+    const { firstName, lastName, email, phone, password } = req.body;
+    try {
+        const existingCustomer = await Customer.findOne({ email: email || null, phone: phone || null });
+        if (existingCustomer) {
+            return res.status(400).json({ message: 'Email or phone already exists' });
+        }
+        const phoneVerificationCode = Math.floor(100000 + Math.random() * 900000);
+        const customer = await createCustomer({ firstName, lastName, email, phone, password, phoneVerificationCode });
+        const twilioResponse = await VerificationCode(customer);
+        res.status(201).json(customer);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
 exports.verifyPhone = (req, res) => res.send('Customer verify phone');
 exports.childAndPets = (req, res) => res.send('Customer add child and pets');
 exports.uploadImages = (req, res) => res.send('Customer upload images');
