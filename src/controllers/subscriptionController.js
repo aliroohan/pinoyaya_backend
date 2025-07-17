@@ -1,0 +1,1 @@
+exports.subscribe = (req, res) => res.send('Subscribe to package'); 
