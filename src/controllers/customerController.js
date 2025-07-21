@@ -2,7 +2,10 @@ const Customer = require('../models/Customer');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { VerificationCode } = require('../services/Twilio');
-const { createCustomer } = require('../services/customer');
+const { createCustomer, findCustomerByPhone, updateCustomer, deleteCustomer, getAllCustomers, getCustomerById, updateCustomerById, verifyDocs } = require('../services/customer');
+const { createChild } = require('../services/child');
+const { createPet } = require('../services/pet');
+const { uploadImages } = require('../services/s3Service');
 
 exports.login = async (req, res) => {
     const { email, phone, password } = req.body;
@@ -46,14 +49,149 @@ exports.signup = async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 };
-exports.verifyPhone = (req, res) => res.send('Customer verify phone');
-exports.childAndPets = (req, res) => res.send('Customer add child and pets');
-exports.uploadImages = (req, res) => res.send('Customer upload images');
-exports.resendOtp = (req, res) => res.send('Customer resend OTP');
-exports.resetPassword = (req, res) => res.send('Customer reset password');
-exports.forgetPassword = (req, res) => res.send('Customer forget password');
-exports.getAll = (req, res) => res.send('Get all customers');
-exports.getById = (req, res) => res.send('Get customer by id');
-exports.update = (req, res) => res.send('Update customer');
-exports.delete = (req, res) => res.send('Delete customer');
-exports.verifyDocs = (req, res) => res.send('Customer verify docs'); 
+
+exports.verifyPhone = async (req, res) => {
+    const { phone, code } = req.body;
+    const customer = await findCustomerByPhone(phone);
+    if (!customer) {
+        return res.status(400).json({ message: 'Customer not found' });
+    }
+    if (customer.phoneVerificationCode !== code) {
+        return res.status(400).json({ message: 'Invalid code' });
+    }
+    customer.phoneVerified = true;
+    await customer.save();
+    res.status(200).json({ message: 'Phone verified' });
+}
+
+exports.childAndPets = async (req, res) => {
+    const { children, pets } = req.body;
+    for (const child of children) {
+        const childData = {
+            customerId: req.customer._id,
+            name: child.name,
+            age: child.age,
+            gender: child.gender
+        }
+        await createChild(childData);
+    }
+    for (const pet of pets) {
+        const petData = {
+            customerId: req.customer._id,
+            name: pet.name,
+            breed: pet.breed
+        }
+        await createPet(petData);
+    }
+    res.status(200).json({ message: 'Child and pets created' });
+}
+
+exports.uploadImages = async (req, res) => {
+    try {
+        const { photo, front, back } = req.body;
+
+        const customerId = req.customer._id;
+        const photoUrl = await uploadImages(photo, customerId);
+        const frontImageUrl = await uploadImages(front, customerId);
+        const backImageUrl = await uploadImages(back, customerId);
+        const customer = await updateCustomer(customerId, { photoUrl: photoUrl, verificationIdPhotoUrls: [frontImageUrl, backImageUrl] });
+        res.status(200).json({ message: 'Images uploaded successfully' });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+}
+
+
+exports.resendOtp = async (req, res) => {
+    const { phone } = req.body;
+    try {
+        const customer = await findCustomerByPhone(phone);
+        if (!customer) {
+            return res.status(400).json({ message: 'Customer not found' });
+        }
+        const phoneVerificationCode = Math.floor(100000 + Math.random() * 900000);
+        const user = await updateCustomer(customer._id, { phoneVerificationCode });
+        const twilioResponse = await VerificationCode(customer, phoneVerificationCode);
+        res.status(200).json({ message: 'OTP sent successfully', twilioResponse });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+}
+
+exports.resetPassword = async (req, res) => {
+    const { phone, password } = req.body;
+    try {
+        const customer = await findCustomerByPhone(phone);
+        if (!customer) {
+            return res.status(400).json({ message: 'Customer not found' });
+        }
+        const hashedPassword = await bcrypt.hash(password, 10);
+        await updateCustomer(customer._id, { password: hashedPassword });
+        res.status(200).json({ message: 'Password reset successfully' });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+}
+
+exports.forgetPassword = async (req, res) => {
+    const { phone } = req.body;
+    try {
+        const customer = await findCustomerByPhone(phone);
+        if (!customer) {
+            return res.status(400).json({ message: 'Customer not found' });
+        }
+        const phoneVerificationCode = Math.floor(100000 + Math.random() * 900000);
+        const user = await updateCustomer(customer._id, { phoneVerificationCode });
+        const twilioResponse = await VerificationCode(customer, phoneVerificationCode);
+        res.status(200).json({ message: 'OTP sent successfully', twilioResponse });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+}
+exports.getAll = async (req, res) => {
+    try {
+        const customers = await getAllCustomers();
+        res.status(200).json(customers);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+}
+exports.getById = async (req, res) => {
+    const { id } = req.params;
+    const customer = await getCustomerById(id);
+    if (!customer) {
+        return res.status(400).json({ message: 'Customer not found' });
+    }
+    res.status(200).json(customer);
+}
+
+exports.update = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const { firstName, lastName, email, phone, password, description } = req.body;
+        const customer = await updateCustomerById(id, { firstName, lastName, email, phone, password, description });
+        res.status(200).json({
+            message: 'Customer updated successfully',
+            customer
+        });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+}
+exports.delete = async (req, res) => {
+    const { id } = req.params;
+    const customer = await deleteCustomer(id);
+    res.status(200).json({
+        message: 'Customer deleted successfully',
+        customer
+    });
+}
+
+exports.verifyDocs = async (req, res) => {
+    const { id } = req.params;
+    const customer = await verifyDocs(id);
+    res.status(200).json({
+        message: 'Customer verify docs successfully',
+        customer
+    });
+}
