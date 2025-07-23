@@ -4,7 +4,7 @@ const bankaccountController = require('../controllers/bankaccountController');
 const auth = require('../middleware/auth');
 
 router.post('/', auth, bankaccountController.create);
-router.get('/:babysitterId', auth, bankaccountController.getByBabysitter);
+router.get('/', auth, bankaccountController.getByBabysitter);
 router.patch('/:id', auth, bankaccountController.update);
 router.delete('/:id', auth, bankaccountController.delete);
 
