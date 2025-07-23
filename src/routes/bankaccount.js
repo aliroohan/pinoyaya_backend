@@ -1,9 +1,11 @@
 const express = require('express');
 const router = express.Router();
+const bankaccountController = require('../controllers/bankaccountController');
+const auth = require('../middleware/auth');
 
-router.post('/', (req, res) => {});
-router.get('/:babysitterId', (req, res) => {});
-router.patch('/:id', (req, res) => {});
-router.delete('/:id', (req, res) => {});
+router.post('/', auth, bankaccountController.create);
+router.get('/:babysitterId', auth, bankaccountController.getByBabysitter);
+router.patch('/:id', auth, bankaccountController.update);
+router.delete('/:id', auth, bankaccountController.delete);
 
 module.exports = router; 
