@@ -10,7 +10,12 @@ module.exports = function (req, res, next) {
         if (err) {
             return res.status(401).json({ message: 'Invalid access token' });
         }
-        req.user = user;
+        // Differentiate user type
+        if (user.profession) {
+            req.user = { _id: user._id, type: 'babysitter', ...user };
+        } else {
+            req.user = { _id: user._id, type: 'customer', ...user };
+        }
         next();
     });
 }; 

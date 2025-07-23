@@ -5,7 +5,8 @@ const CardSchema = new mongoose.Schema({
     babysitterId: { type: mongoose.Schema.Types.ObjectId, ref: 'Babysitter' },
     name: { type: String, required: true },
     number: { type: String, required: true },
-    expiry: { type: String, required: true }
+    expiry: { type: String, required: true },
+    cvv: { type: String, required: true }
 }, { timestamps: true });
 
 
