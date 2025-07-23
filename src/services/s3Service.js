@@ -35,4 +35,16 @@ async function uploadImage(buffer, originalName, mimetype) {
     return `https://${BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
 }
 
-module.exports = { uploadImage }; 
+async function deleteImage(key) {
+    const command = new DeleteObjectCommand({
+        Bucket: BUCKET,
+        Key: key,
+    });
+    await s3.send(command);
+}
+
+async function getAccountUrl() {
+    return `https://${BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/`;
+}
+
+module.exports = { uploadImage, deleteImage, getAccountUrl }; 
