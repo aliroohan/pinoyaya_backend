@@ -6,8 +6,15 @@ exports.createAddress = async (addressData) => {
     return address;
 };
 
-exports.getAddressesByUser = async (customerId, babysitterId) => {
-    const addresses = await Address.find({ customerId, babysitterId });
+exports.getAddressesByUser = async (user) => {
+    if (user.type === 'customer') {
+        const addresses = await Address.find({ customerId: user._id });
+    } else if (user.type === 'babysitter') {
+        const addresses = await Address.find({ babysitterId: user._id });
+        return addresses;
+    } else {
+        throw new Error('User must be a customer or babysitter');
+    }
     return addresses;
 };
 
@@ -16,9 +23,18 @@ exports.updateAddress = async (addressId, addressData) => {
     return address;
 };
 
-exports.updateDefaultAddress = async (addressId, customerId, babysitterId) => {
+exports.updateDefaultAddress = async (addressId, user) => {
     const address = await Address.findById(addressId);
-    const addresses = await Address.find({ customerId, babysitterId });
+    if (user.type === 'customer') {
+        const addresses = await Address.find({ customerId: user._id });
+    } else if (user.type === 'babysitter') {
+        const addresses = await Address.find({ babysitterId: user._id });
+    } else {
+        throw new Error('Address must have either customerId or babysitterId');
+    }
+    if (address.isDefault) {
+        return address;
+    }
     addresses.forEach(async (address) => {
         address.isDefault = false;
         await address.save();

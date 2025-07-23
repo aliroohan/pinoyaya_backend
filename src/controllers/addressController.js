@@ -2,9 +2,17 @@ const { createAddress, getAddressesByUser, updateAddress, deleteAddress, updateD
 
 exports.create = async (req, res) => {
     try {
-        const { customerId, babysitterId, title, house, area, directions, label, longitude, latitude, isDefault } = req.body;
-        const address = await createAddress(customerId, babysitterId, title, house, area, directions, label, longitude, latitude, isDefault);
-        res.status(201).json(address);
+        const user = req.user;
+        let addressData = req.body;
+        if (user.type === 'customer') {
+            addressData.customerId = user._id;
+        } else if (user.type === 'babysitter') {
+            addressData.babysitterId = user._id;
+        } else {
+            return res.status(400).json({ error: 'User must be a customer or babysitter' });
+        }
+        const address = await createAddress(addressData);
+        res.status(201).json({ message: 'Address created successfully', address });
     } catch (error) {
         res.status(500).json({ error: error.message || 'Internal server error' });
     }
@@ -12,9 +20,9 @@ exports.create = async (req, res) => {
 
 exports.getByUser = async (req, res) => {
     try {
-        const { customerId, babysitterId } = req.params;
-        const addresses = await getAddressesByUser(customerId, babysitterId);
-        res.status(200).json(addresses);
+        const user = req.user;
+        const addresses = await getAddressesByUser(user);
+        res.status(200).json({ message: 'Addresses fetched successfully', addresses });
     } catch (error) {
         res.status(500).json({ error: error.message || 'Internal server error' });
     }
@@ -23,8 +31,8 @@ exports.getByUser = async (req, res) => {
 exports.update = async (req, res) => {
     try {
         const { addressId } = req.params;
-        const { customerId, babysitterId, title, house, area, directions, label, longitude, latitude, isDefault } = req.body;
-        const address = await updateAddress(addressId, customerId, babysitterId, title, house, area, directions, label, longitude, latitude, isDefault);
+        const { title, house, area, directions, label, longitude, latitude, isDefault } = req.body;
+        const address = await updateAddress(addressId, title, house, area, directions, label, longitude, latitude, isDefault);
         res.status(200).json(address);
     } catch (error) {
         res.status(500).json({ error: error.message || 'Internal server error' });
@@ -34,8 +42,8 @@ exports.update = async (req, res) => {
 exports.updateDefault = async (req, res) => {
     try {
         const { addressId } = req.params;
-        const { customerId, babysitterId} = req.body;
-        const address = await updateDefaultAddress(addressId, customerId, babysitterId);
+        const user = req.user;
+        const address = await updateDefaultAddress(addressId, user);
         res.status(200).json(address);
     } catch (error) {
         res.status(500).json({ error: error.message || 'Internal server error' });
