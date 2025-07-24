@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const childController = require('../controllers/childController');
+const auth = require('../middlewares/auth');
 
-router.get('/', childController.getAll);
-router.patch('/:id', childController.update);
-router.delete('/:id', childController.delete);
+router.get('/', auth, childController.getAll);
+router.patch('/:id', auth, childController.update);
+router.delete('/:id', auth, childController.delete);
 
 module.exports = router; 

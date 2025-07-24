@@ -7,7 +7,16 @@ exports.createChild = async (childData) => {
     return child;
 }
 
-exports.findChildByCustomerId = async (customerId) => {
-    const child = await Child.find({ customerId: customerId });
+exports.findChildsByCustomerId = async (customerId) => {
+    const children = await Child.find({ customerId: customerId });
+    return children;
+}
+
+exports.updateChild = async (id, childData) => {
+    const child = await Child.findByIdAndUpdate(id, childData, { new: true });
     return child;
+}
+
+exports.deleteChild = async (id) => {
+    await Child.findByIdAndDelete(id);
 }
