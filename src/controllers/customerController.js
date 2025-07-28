@@ -1,7 +1,7 @@
-const Customer = require('../models/Customer');
+const customer = require('../models/customer');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { VerificationCode } = require('../services/Twilio');
+const { VerificationCode } = require('../services/twilio');
 const { createCustomer, findCustomerByPhone, updateCustomer, deleteCustomer, getAllCustomers, getCustomerById, updateCustomerById, verifyDocs } = require('../services/customer');
 const { createChild } = require('../services/child');
 const { createPet } = require('../services/pet');
@@ -10,7 +10,7 @@ const { uploadImages } = require('../services/s3Service');
 exports.login = async (req, res) => {
     const { email, phone, password } = req.body;
     try {
-        const customer = await Customer.findOne({
+        const customer = await customer.findOne({
             $or: [
                 { email: email || null },
                 { phone: phone || null }
@@ -37,7 +37,7 @@ exports.login = async (req, res) => {
 exports.signup = async (req, res) => {
     const { firstName, lastName, email, phone, password } = req.body;
     try {
-        const existingCustomer = await Customer.findOne({ email: email || null, phone: phone || null });
+        const existingCustomer = await customer.findOne({ email: email || null, phone: phone || null });
         if (existingCustomer) {
             return res.status(400).json({ message: 'Email or phone already exists' });
         }

@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const BabysitterSchema = new mongoose.Schema({
+const babysitterSchema = new mongoose.Schema({
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
     phone: { type: String, required: true, unique: true },
@@ -20,4 +20,4 @@ const BabysitterSchema = new mongoose.Schema({
     skills: [{ type: String }]
 }, { timestamps: true });
 
-module.exports = mongoose.model('Babysitter', BabysitterSchema); 
+module.exports = mongoose.model('Babysitter', babysitterSchema); 

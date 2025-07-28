@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const ChildSchema = new mongoose.Schema({
+const childSchema = new mongoose.Schema({
     customerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Customer', required: true },
     name: { type: String, required: true },
     age: { type: Number, required: true },
@@ -8,4 +8,4 @@ const ChildSchema = new mongoose.Schema({
     specialNeeds: { type: Boolean, default: false }
 }, { timestamps: true });
 
-module.exports = mongoose.model('Child', ChildSchema); 
+module.exports = mongoose.model('Child', childSchema); 

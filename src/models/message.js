@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
 
-const MessageSchema = new mongoose.Schema({
+const messageSchema = new mongoose.Schema({
     customerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Customer', required: true },
     babysitterId: { type: mongoose.Schema.Types.ObjectId, ref: 'Babysitter', required: true },
     text: { type: String },
-    imageUrl: { type: String } // S3 URL
+    imageUrl: { type: String }
 }, { timestamps: true });
 
-module.exports = mongoose.model('Message', MessageSchema); 
+module.exports = mongoose.model('Message', messageSchema); 

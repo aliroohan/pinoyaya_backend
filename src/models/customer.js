@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
-const CustomerSchema = new mongoose.Schema({
+const customerSchema = new mongoose.Schema({
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
     phone: { type: String, required: true, unique: true },
@@ -16,7 +16,7 @@ const CustomerSchema = new mongoose.Schema({
     idVerified: { type: Boolean, default: false }
 }, { timestamps: true });
 
-CustomerSchema.pre('save', function(next) {
+customerSchema.pre('save', function(next) {
     if (!this.isModified('password')) {
         return next();
     }
@@ -24,4 +24,4 @@ CustomerSchema.pre('save', function(next) {
     next();
 });
 
-module.exports = mongoose.model('Customer', CustomerSchema);
+module.exports = mongoose.model('Customer', customerSchema);

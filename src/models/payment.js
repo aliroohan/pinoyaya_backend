@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const PaymentSchema = new mongoose.Schema({
+const paymentSchema = new mongoose.Schema({
     transportCharges: { type: Number },
     serviceCharges: { type: Number },
     vat: { type: Number },
@@ -13,4 +13,4 @@ const PaymentSchema = new mongoose.Schema({
     isPaid: { type: Boolean, default: false }
 }, { timestamps: true });
 
-module.exports = mongoose.model('Payment', PaymentSchema); 
+module.exports = mongoose.model('Payment', paymentSchema); 

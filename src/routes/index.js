@@ -3,7 +3,7 @@ const router = express.Router();
 
 router.use('/customer', require('./customer'));
 router.use('/child', require('./child'));
-router.use('/address', require('./address'));
+router.use('/location', require('./location'));
 router.use('/pet', require('./pet'));
 router.use('/babysitter', require('./babysitter'));
 router.use('/certificates', require('./certificates'));

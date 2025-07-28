@@ -1,22 +1,22 @@
-const Child = require('../models/Child');
+const child = require('../models/child');
 
 
 exports.createChild = async (childData) => {
-    const child = new Child(childData);
+    const child = new child(childData);
     await child.save();
     return child;
 }
 
 exports.findChildsByCustomerId = async (customerId) => {
-    const children = await Child.find({ customerId: customerId });
+    const children = await child.find({ customerId: customerId });
     return children;
 }
 
 exports.updateChild = async (id, childData) => {
-    const child = await Child.findByIdAndUpdate(id, childData, { new: true });
+    const child = await child.findByIdAndUpdate(id, childData, { new: true });
     return child;
 }
 
 exports.deleteChild = async (id) => {
-    await Child.findByIdAndDelete(id);
+    await child.findByIdAndDelete(id);
 }

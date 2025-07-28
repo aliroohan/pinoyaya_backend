@@ -1,14 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const jobController = require('../controllers/jobController');
+const auth = require('../middlewares/auth');
 
-router.post('/', jobController.createJob);
+router.post('/',auth, jobController.createJob);
 router.get('/', jobController.getJobs);
-router.get('/filter', jobController.getJobsByFilter);
-router.get('/customer/:customerId', jobController.getJobsByCustomerId);
-router.get('/babysitter/:babysitterId', jobController.getJobsByBabysitterId);
-router.get('/:id', jobController.getJobById);
-router.patch('/:id', jobController.updateJob);
-router.delete('/:id', jobController.deleteJob);
+router.get('/customer/:customerId', auth, jobController.getJobsByCustomerId);
+router.get('/babysitter/:babysitterId', auth, jobController.getJobsByBabysitterId);
+router.get('/:id', auth, jobController.getJobById);
+router.patch('/:id', auth, jobController.updateJob);
+router.delete('/:id', auth, jobController.deleteJob);
 
 module.exports = router; 

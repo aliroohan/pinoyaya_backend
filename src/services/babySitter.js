@@ -1,23 +1,26 @@
-const Babysitter = require('../models/Babysitter');
+const babysitter = require('../models/babysitter');
+const Wallet = require('../models/wallet');
 
 exports.getAllBabysitters = async () => {
-    const babysitters = await Babysitter.find();
+    const babysitters = await babysitter.find();
     return babysitters;
 };
 
 exports.createBabysitter = async (babysitterData) => {
-    const babysitter = new Babysitter(babysitterData);
+    const babysitter = new babysitter(babysitterData);
     await babysitter.save();
+    const wallet = new Wallet({ babysitterId: babysitter._id });
+    await wallet.save();
     return babysitter;
 };
 
 exports.getBabysitterById = async (id) => {
-    const babysitter = await Babysitter.findById(id);
+    const babysitter = await babysitter.findById(id);
     return babysitter;
 };
 
 exports.getBabysitter = async (phone, email = null) => {
-    const babysitter = await Babysitter.findOne({
+    const babysitter = await babysitter.findOne({
         $or: [
             { phone },
             { email }
@@ -40,16 +43,16 @@ exports.verifyPhone = async (phone, code) => {
 };
 
 exports.updateBabysitter = async (id, data) => {
-    const babysitter = await Babysitter.findByIdAndUpdate(id, data, { new: true });
+    const babysitter = await babysitter.findByIdAndUpdate(id, data, { new: true });
     return babysitter;
 };
 
 exports.deleteBabysitter = async (id) => {
-    const babysitter = await Babysitter.findByIdAndDelete(id);
+    const babysitter = await babysitter.findByIdAndDelete(id);
     return babysitter;
 };
 
 exports.verifyDocs = async (id) => {
-    const babysitter = await Babysitter.findByIdAndUpdate(id, { idVerified: true }, { new: true });
+    const babysitter = await babysitter.findByIdAndUpdate(id, { idVerified: true }, { new: true });
     return babysitter;
 };
