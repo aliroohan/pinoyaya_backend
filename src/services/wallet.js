@@ -1,9 +1,9 @@
-const wallet = require('../models/wallet');
+const walletModel = require('../models/wallet');
 
 exports.getByBabysitter = async (babysitterId) => {
-  return await wallet.findOne({ babysitter: babysitterId });
+  return await walletModel.findOne({ babysitter: babysitterId });
 };
 
 exports.update = async (id, data) => {
-  return await wallet.findByIdAndUpdate(id, data, { new: true });
+  return await walletModel.findByIdAndUpdate(id, data, { new: true });
 };

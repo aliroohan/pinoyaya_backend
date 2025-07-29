@@ -1,8 +1,8 @@
-const transaction = require('../models/transaction');
+const transactionModel = require('../models/transaction');
 
 exports.create = async (data) => {
   const { details, ...rest } = data;
-  const transaction = new transaction({
+  const transaction = new transactionModel({
     ...rest,
     details: details ? JSON.stringify(details) : undefined
   });
@@ -10,7 +10,7 @@ exports.create = async (data) => {
 };
 
 exports.markSuccess = async (transactionId, details) => {
-  return await transaction.findByIdAndUpdate(
+  return await transactionModel.findByIdAndUpdate(
     transactionId,
     { isSuccessful: true, details: details ? JSON.stringify(details) : undefined },
     { new: true }
@@ -18,9 +18,9 @@ exports.markSuccess = async (transactionId, details) => {
 };
 
 exports.getByBabysitter = async (babysitterId) => {
-  return await transaction.find({ babysitterId: babysitterId });
+  return await transactionModel.find({ babysitterId: babysitterId });
 };
 
 exports.getByAccount = async (accountId) => {
-  return await transaction.find({ accountId: accountId });
+  return await transactionModel.find({ accountId: accountId });
 }; 

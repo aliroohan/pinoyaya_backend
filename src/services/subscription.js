@@ -1,12 +1,12 @@
-const subscription = require('../models/subscription');
-const customer = require('../models/customer');
+const subscriptionModel = require('../models/subscription');
+const customerModel = require('../models/customer');
 
 exports.subscribe = async (userId, subscriptionId) => {
-  const customer = await customer.findById(userId);
+  const customer = await customerModel.findById(userId);
   if (!customer) {
     throw new Error('Customer not found');
   }
-  const subscription = await subscription.findById(subscriptionId);
+  const subscription = await subscriptionModel.findById(subscriptionId);
   if (!subscription) {
     throw new Error('Subscription not found');
   }
@@ -15,10 +15,10 @@ exports.subscribe = async (userId, subscriptionId) => {
 };
 
 exports.getSubscriptions = async () => {
-  return await subscription.find();
+  return await subscriptionModel.find();
 };
 
 exports.createSubscription = async (data) => {
-  const subscription = new subscription(data);
+  const subscription = new subscriptionModel(data);
   return await subscription.save();
 };

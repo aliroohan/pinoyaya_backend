@@ -4,8 +4,10 @@ const jwt = require('jsonwebtoken');
 const { VerificationCode } = require('../services/twilio');
 const { createCustomer, findCustomerByPhone, updateCustomer, deleteCustomer, getAllCustomers, getCustomerById, updateCustomerById, verifyDocs } = require('../services/customer');
 const { createChild } = require('../services/child');
-const { createPet } = require('../services/pet');
-const { uploadImages } = require('../services/s3Service');
+const { create } = require('../services/pet');
+const { uploadImage } = require('../services/s3Service');
+const multer = require('multer');
+const upload = multer();
 
 exports.login = async (req, res) => {
     const { email, phone, password } = req.body;
@@ -76,7 +78,7 @@ exports.childAndPets = async (req, res) => {
     const { children, pets } = req.body;
     for (const child of children) {
         const childData = {
-            customerId: req.customer._id,
+            customerId: req.user._id,
             name: child.name,
             age: child.age,
             gender: child.gender
@@ -85,29 +87,29 @@ exports.childAndPets = async (req, res) => {
     }
     for (const pet of pets) {
         const petData = {
-            customerId: req.customer._id,
+            customerId: req.user._id,
             name: pet.name,
             breed: pet.breed
         }
-        await createPet(petData);
+        await create(petData);
     }
     res.status(200).json({ message: 'Child and pets created' });
 }
 
-exports.uploadImages = async (req, res) => {
+exports.uploadImages = [
+    upload.fields([{ name: 'photo' }, { name: 'front' }, { name: 'back' }]),
+    async (req, res) => {
     try {
-        const { photo, front, back } = req.body;
-
-        const customerId = req.customer._id;
-        const photoUrl = await uploadImages(photo, customerId);
-        const frontImageUrl = await uploadImages(front, customerId);
-        const backImageUrl = await uploadImages(back, customerId);
+        const customerId = req.user._id;
+        const photoUrl = await uploadImage(req.files.photo[0].buffer, req.files.photo[0].originalname, req.files.photo[0].mimetype);
+        const frontImageUrl = await uploadImage(req.files.front[0].buffer, req.files.front[0].originalname, req.files.front[0].mimetype);
+        const backImageUrl = await uploadImage(req.files.back[0].buffer, req.files.back[0].originalname, req.files.back[0].mimetype);
         const customer = await updateCustomer(customerId, { photoUrl: photoUrl, verificationIdPhotoUrls: [frontImageUrl, backImageUrl] });
         res.status(200).json({ message: 'Images uploaded successfully' });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
-}
+}];
 
 
 exports.resendOtp = async (req, res) => {

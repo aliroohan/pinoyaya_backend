@@ -1,28 +1,28 @@
-const payment = require('../models/payment');
-const wallet = require('../models/wallet');
+const paymentModel = require('../models/payment');
+const walletModel = require('../models/wallet');
 
 exports.create = async (data) => {
-  const payment = new payment(data);
+  const payment = new paymentModel(data);
   return await payment.save();
 };
 
 exports.getByCustomer = async (customerId) => {
-  return await payment.find({ customer: customerId });
+  return await paymentModel.find({ customer: customerId });
 };
 
 exports.getByJob = async (jobId) => {
-  return await payment.find({ job: jobId });
+  return await paymentModel.find({ job: jobId });
 };
 
 exports.update = async (id, data) => {
-   const payment = await payment.findById(id);
+   const payment = await paymentModel.findById(id);
     if (data.isPaid) {
-      let wallet = await wallet.findOne({ babysitter: payment.babysitter });
+      let wallet = await walletModel.findOne({ babysitter: payment.babysitter });
       if (!wallet) {
-        wallet = await wallet.create({ babysitter: payment.babysitter, balance: 0 });
+        wallet = await walletModel.create({ babysitter: payment.babysitter, balance: 0 });
       }
       wallet.balance += payment.total;
       await wallet.save();
     }
-    return await payment.findByIdAndUpdate(id, data, { new: true });
+    return await paymentModel.findByIdAndUpdate(id, data, { new: true });
 };

@@ -1,30 +1,30 @@
-const job = require('../models/job');
+const jobModel = require('../models/job');
 
 exports.createJob = async (data) => {
-  const job = new job(data);
+  const job = new jobModel(data);
   return await job.save();
 };
 
 exports.getJobs = async () => {
-  return await job.find();
+  return await jobModel.find();
 };
 
 exports.getJobsByCustomerId = async (customerId) => {
-  return await job.find({ customer: customerId });
+  return await jobModel.find({ customer: customerId });
 };
 
 exports.getJobsByBabysitterId = async (babysitterId) => {
-  return await job.find({ babysitter: babysitterId });
+  return await jobModel.find({ babysitter: babysitterId });
 };
 
 exports.getJobById = async (id) => {
-  return await job.findById(id);
+  return await jobModel.findById(id);
 };
 
 exports.updateJob = async (id, data) => {
-  return await job.findByIdAndUpdate(id, data, { new: true });
+  return await jobModel.findByIdAndUpdate(id, data, { new: true });
 };
 
 exports.deleteJob = async (id) => {
-  return await job.findByIdAndDelete(id);
+  return await jobModel.findByIdAndDelete(id);
 }; 

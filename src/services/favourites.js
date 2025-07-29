@@ -1,16 +1,16 @@
-const favourite = require('../models/favourite');
+const favouriteModel = require('../models/favourite');
 
 exports.add = async (customerId, babysitterId) => {
-    const favourite = new favourite({ customerId, babysitterId });
+    const favourite = new favouriteModel({ customerId, babysitterId });
     await favourite.save();
     return favourite;
 }
 
 exports.getByCustomer = async (customerId) => {
-    const favourites = await favourite.find({ customerId });
+    const favourites = await favouriteModel.find({ customerId });
     return favourites;
 }
 
 exports.delete = async (id) => {
-    await favourite.findByIdAndDelete(id);
+    await favouriteModel.findByIdAndDelete(id);
 }

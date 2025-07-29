@@ -1,7 +1,7 @@
-const location = require('../models/location');
+const locationModel = require('../models/location');
 
 exports.createLocation = async (locationData) => {
-    const location = new location(locationData);
+    const location = new locationModel(locationData);
     await location.save();
     return location;
 };
@@ -9,9 +9,9 @@ exports.createLocation = async (locationData) => {
 exports.getLocationsByUser = async (user) => {
     let locations;
     if (user.type === 'customer') {
-        locations = await location.find({ customerId: user._id });
+        locations = await locationModel.find({ customerId: user._id });
     } else if (user.type === 'babysitter') {
-        locations = await location.find({ babysitterId: user._id });
+        locations = await locationModel.find({ babysitterId: user._id });
     } else {
         throw new Error('User must be a customer or babysitter');
     }
@@ -19,17 +19,17 @@ exports.getLocationsByUser = async (user) => {
 };
 
 exports.updateLocation = async (locationId, locationData) => {
-    const location = await location.findByIdAndUpdate(locationId, locationData, { new: true });
+    const location = await locationModel.findByIdAndUpdate(locationId, locationData, { new: true });
     return location;
 };
 
 exports.updateDefaultLocation = async (locationId, user) => {
-    const location = await location.findById(locationId);
+    const location = await locationModel.findById(locationId);
     let locations;
     if (user.type === 'customer') {
-        locations = await location.find({ customerId: user._id });
+        locations = await locationModel.find({ customerId: user._id });
     } else if (user.type === 'babysitter') {
-        locations = await location.find({ babysitterId: user._id });
+        locations = await locationModel.find({ babysitterId: user._id });
     } else {
         throw new Error('Location must have either customerId or babysitterId');
     }
@@ -46,6 +46,6 @@ exports.updateDefaultLocation = async (locationId, user) => {
 };
 
 exports.deleteLocation = async (locationId) => {
-    const location = await location.findByIdAndDelete(locationId);
+    const location = await locationModel.findByIdAndDelete(locationId);
     return location;
 };

@@ -1,12 +1,12 @@
-const chat = require('../models/chat');
-const customer = require('../models/customer');
+const chatModel = require('../models/chat');
+const customerModel = require('../models/customer');
 
 exports.createChat = async ({ customerId, babysitterId, user = null }) => {
     if (user.type === 'customer') {
         if (user.availableChats > 0) {
-            const chat = new chat({ customerId, babysitterId });
+            const chat = new chatModel({ customerId, babysitterId });
             await chat.save();
-            const customer = await customer.findById(customerId);
+            const customer = await customerModel.findById(customerId);
             customer.availableChats--;
             await customer.save();
             return chat;
@@ -14,7 +14,7 @@ exports.createChat = async ({ customerId, babysitterId, user = null }) => {
             throw new Error('No available chats');
         }
     } else {
-        const chat = new chat({ customerId, babysitterId });
+        const chat = new chatModel({ customerId, babysitterId });
         await chat.save();
         return chat;
     }
@@ -22,10 +22,10 @@ exports.createChat = async ({ customerId, babysitterId, user = null }) => {
 
 exports.getChatsById = async (user) => {
     if (user.type === 'customer') {
-        const chats = await chat.find({ customerId: user.id });
+        const chats = await chatModel.find({ customerId: user.id });
         return chats;
     } else {
-        const chats = await chat.find({ babysitterId: user.id });
+        const chats = await chatModel.find({ babysitterId: user.id });
         return chats;
     }
 }
