@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { createBabysitter, getBabysitter, getBabysitterById, verifyPhone, updateBabysitter, getAllBabysitters, deleteBabysitter, verifyDocs: verifyDocsService } = require('../services/babySitter');
-const { VerificationCode } = require('../services/Twilio');
+const { VerificationCode } = require('../services/twilio');
 
 exports.signup = async (req, res) => {
     const { firstName, lastName, email, phone, password, profession } = req.body;
@@ -49,7 +49,7 @@ exports.verifyPhone = async (req, res) =>  {
         res.status(500).json({ message: err.message });
     }
 }
-// exports.verifyEmail = async(req, res) => res.send('Babysitter verify email');
+
 exports.resendOtp = async (req, res) => {
     const { phone } = req.body;
     try {

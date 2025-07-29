@@ -1,4 +1,4 @@
-const customer = require('../models/customer');
+const customerModel = require('../models/customer');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { VerificationCode } = require('../services/twilio');
@@ -10,7 +10,8 @@ const { uploadImages } = require('../services/s3Service');
 exports.login = async (req, res) => {
     const { email, phone, password } = req.body;
     try {
-        const customer = await customer.findOne({
+        debugger;
+        const customer = await customerModel.findOne({
             $or: [
                 { email: email || null },
                 { phone: phone || null }
@@ -18,6 +19,9 @@ exports.login = async (req, res) => {
         });
         if (!customer) {
             return res.status(401).json({ message: 'Invalid credentials' });
+        }
+        if (!customer.phoneVerified) {
+            return res.status(401).json({ message: 'Phone not verified' });
         }
         const isMatch = await bcrypt.compare(password, customer.password);
         if (!isMatch) {
@@ -35,14 +39,18 @@ exports.login = async (req, res) => {
     }
 };
 exports.signup = async (req, res) => {
+    debugger;
+    // console.log(req.body);
     const { firstName, lastName, email, phone, password } = req.body;
     try {
-        const existingCustomer = await customer.findOne({ email: email || null, phone: phone || null });
+        const existingCustomer = await customerModel.findOne({ email: email, phone: phone });
         if (existingCustomer) {
             return res.status(400).json({ message: 'Email or phone already exists' });
         }
+        // console.log(req.body);
         const phoneVerificationCode = Math.floor(100000 + Math.random() * 900000);
         const customer = await createCustomer({ firstName, lastName, email, phone, password, phoneVerificationCode });
+        console.log(customer);
         const twilioResponse = await VerificationCode(customer);
         res.status(201).json(customer);
     } catch (err) {

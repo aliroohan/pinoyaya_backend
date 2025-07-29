@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const favouritesController = require('../controllers/favouritesController');
-const auth = require('../middlewares/auth');
+const auth = require('../middleware/auth');
 
 router.post('/', auth, favouritesController.add);
 router.get('/', auth, favouritesController.getByCustomer);

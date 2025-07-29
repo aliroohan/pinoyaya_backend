@@ -6,4 +6,4 @@ exports.getByBabysitter = async (babysitterId) => {
 
 exports.update = async (id, data) => {
   return await wallet.findByIdAndUpdate(id, data, { new: true });
-}; 
+};

@@ -12,7 +12,14 @@ exports.create = async (req, res) => {
 exports.getByBabysitter = async (req, res) => {
   try {
     const reviews = await reviewService.getByBabysitter(req.params.babysitterId);
-    res.json(reviews);
+    const averageRating = reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length;
+    const totalReviews = reviews.length;
+    const response = {
+      reviews,
+      averageRating,
+      totalReviews
+    };
+    res.json(response);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

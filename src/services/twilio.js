@@ -8,14 +8,15 @@ const twilio = require("twilio")(
 );
 
 module.exports = {
-  VerificationCode: (user) => {
-    twilio.messages
+  VerificationCode: async (user) => {
+    const message = await twilio.messages
       .create({
         body: `Dear ${user.name}!\nThank you for choosing Pinoyaya. Your verification code is ${user.phoneVerificationCode}.`,
         to: user.phone,
         from: process.env.TWILIO_SENDER_NUMBER,
       })
       .then((message) => {
+        console.log(message);
         return {
           status: "Success",
         };
