@@ -12,6 +12,11 @@ exports.findChildsByCustomerId = async (customerId) => {
     return children;
 }
 
+exports.findChildById = async (id) => {
+    const child = await childModel.findById(id);
+    return child;
+}
+
 exports.updateChild = async (id, childData) => {
     const child = await childModel.findByIdAndUpdate(id, childData, { new: true });
     return child;

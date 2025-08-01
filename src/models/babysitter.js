@@ -17,7 +17,8 @@ const babysitterSchema = new mongoose.Schema({
     description: { type: String },
     rate: { type: Number },
     experience: { type: String },
-    skills: [{ type: String }]
+    skills: [{ type: String }],
+    isOnline: { type: Boolean, default: false }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Babysitter', babysitterSchema); 

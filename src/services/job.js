@@ -6,19 +6,19 @@ exports.createJob = async (data) => {
 };
 
 exports.getJobs = async () => {
-  return await jobModel.find();
+  return await jobModel.find().populate('customerId').populate('babysitterId').populate('childId').populate('location');
 };
 
 exports.getJobsByCustomerId = async (customerId) => {
-  return await jobModel.find({ customer: customerId });
+  return await jobModel.find({ customerId: customerId }).populate('customerId').populate('babysitterId').populate('childId').populate('location');
 };
 
 exports.getJobsByBabysitterId = async (babysitterId) => {
-  return await jobModel.find({ babysitter: babysitterId });
+  return await jobModel.find({ babysitterId: babysitterId }).populate('customerId').populate('babysitterId').populate('childId').populate('location');
 };
 
 exports.getJobById = async (id) => {
-  return await jobModel.findById(id);
+  return await jobModel.findById(id).populate('customerId').populate('babysitterId').populate('childId').populate('location');
 };
 
 exports.updateJob = async (id, data) => {

@@ -2,7 +2,7 @@ const customerModel = require('../models/customer');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { VerificationCode } = require('../services/twilio');
-const { createCustomer, findCustomerByPhone, updateCustomer, deleteCustomer, getAllCustomers, getCustomerById, updateCustomerById, verifyDocs } = require('../services/customer');
+const { createCustomer, findCustomerByPhone, updateCustomer, deleteCustomer, getAllCustomers, getCustomerById, verifyDocs } = require('../services/customer');
 const { createChild } = require('../services/child');
 const { create } = require('../services/pet');
 const { uploadImage } = require('../services/s3Service');
@@ -151,7 +151,7 @@ exports.forgetPassword = async (req, res) => {
             return res.status(400).json({ message: 'Customer not found' });
         }
         const phoneVerificationCode = Math.floor(100000 + Math.random() * 900000);
-        const user = await updateCustomer(customer._id, { phoneVerificationCode });
+        const user = await updateCustomer(customer._id, { phoneVerificationCode, phoneVerified: false });
         const twilioResponse = await VerificationCode(customer, phoneVerificationCode);
         res.status(200).json({ message: 'OTP sent successfully', twilioResponse });
     } catch (err) {
@@ -179,7 +179,7 @@ exports.update = async (req, res) => {
     const { id } = req.params;
     try {
         const { firstName, lastName, email, phone, password, description } = req.body;
-        const customer = await updateCustomerById(id, { firstName, lastName, email, phone, password, description });
+        const customer = await updateCustomer(id, { firstName, lastName, email, phone, password, description });
         res.status(200).json({
             message: 'Customer updated successfully',
             customer

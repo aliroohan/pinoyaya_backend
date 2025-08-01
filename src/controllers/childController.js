@@ -1,10 +1,20 @@
-const { findChildsByCustomerId, updateChild, deleteChild } = require('../services/child');
+const { findChildsByCustomerId, updateChild, deleteChild, findChildById } = require('../services/child');
 
 exports.getAll = async (req, res) => {
     try {
         const user = req.user;
         const children = await findChildsByCustomerId(user._id);
         res.status(200).json(children);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+exports.getById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const child = await findChildById(id);
+        res.status(200).json(child);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

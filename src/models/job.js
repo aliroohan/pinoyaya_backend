@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const jobSchema = new mongoose.Schema({
     customerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Customer', required: true },
-    babysitterId: { type: mongoose.Schema.Types.ObjectId, ref: 'Babysitter', required: true },
+    babysitterId: { type: mongoose.Schema.Types.ObjectId, ref: 'Babysitter' },
     type: { type: String, required: true },
     title: { type: String, required: true },
     rate: { type: Number },
@@ -22,7 +22,7 @@ const jobSchema = new mongoose.Schema({
 
 jobSchema.pre('save', function(next) {
     if(this.startTime && this.endTime) {
-        const days = (this.endDate - this.startDate) / (1000 * 60 * 60 * 24);
+        const days = ((this.endDate - this.startDate) / (1000 * 60 * 60 * 24)) + 1;
         const startTime = new Date(`1970-01-01T${this.startTime}`);
         const endTime = new Date(`1970-01-01T${this.endTime}`);
         this.totalHours = (endTime - startTime) / (1000 * 60 * 60) * days;
