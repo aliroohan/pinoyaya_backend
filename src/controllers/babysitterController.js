@@ -129,37 +129,18 @@ exports.getAll = async (req, res) => {
 }
 exports.getBabysittersByFilter = async (req, res) => {
     try {
-        const { latitude, longitude, radius, available } = req.query;
+        const { radius, available } = req.query;
+        const user = req.user;
         
-        // Validate required parameters
-        if (!latitude || !longitude || !radius) {
-            return res.status(400).json({ 
-                message: 'latitude, longitude, and radius are required parameters' 
-            });
-        }
-
-        // Parse parameters
-        const location = {
-            latitude: parseFloat(latitude),
-            longitude: parseFloat(longitude)
-        };
         const radiusKm = parseFloat(radius);
         const availableFilter = available !== undefined ? available === 'true' : undefined;
 
-        // Validate numeric values
-        if (isNaN(location.latitude) || isNaN(location.longitude) || isNaN(radiusKm)) {
-            return res.status(400).json({ 
-                message: 'latitude, longitude, and radius must be valid numbers' 
-            });
-        }
-
-        const babysitters = await getBabysittersByFilter(location, radiusKm, availableFilter);
+        const babysitters = await getBabysittersByFilter(radiusKm, availableFilter, user);
         
         res.status(200).json({
             success: true,
             count: babysitters.length,
             filters: {
-                location,
                 radius: radiusKm,
                 available: availableFilter,
                 availabilityLogic: availableFilter === true ? 

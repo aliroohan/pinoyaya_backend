@@ -1,6 +1,6 @@
 const transactionsService = require('../services/transactions');
 
-// Legacy bank account transaction functions
+
 exports.create = async (req, res) => {
   try {
     const { details, ...rest } = req.body;
@@ -41,7 +41,6 @@ exports.getByAccount = async (req, res) => {
   }
 };
 
-// New payment transaction functions
 exports.getByCustomer = async (req, res) => {
   try {
     const { customerId } = req.params;

@@ -44,7 +44,8 @@ exports.verifyPhone = async (phone, code) => {
     return babysitter;
 };
 
-exports.getBabysittersByFilter = async (location, radius, available) => {
+exports.getBabysittersByFilter = async ( radius, available, user) => {
+    const location = await locationModel.findOne({ babysitterId: user._id, isDefault: true });
     const { latitude, longitude } = location;
     
     // Haversine formula to calculate distance between two points
