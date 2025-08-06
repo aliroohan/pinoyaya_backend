@@ -20,7 +20,7 @@ exports.updateCard = async (id, cardData, user) => {
     let query = {};
     if (user.type === 'customer') query.customerId = user._id;
     if (user.type === 'babysitter') query.babysitterId = user._id;
-    const card = await cardModel.findOneAndUpdate({ _id: id, ...query }, cardData, { new: true });
+    const card = await cardModel.findOneAndUpdate({ _id: id, ...query }, { paymentMethodId: cardData.paymentMethodId }, { new: true });
     if (!card) throw new Error('Card not found or not authorized');
     return card;
 };

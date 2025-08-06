@@ -1,11 +1,15 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { createBabysitter, getBabysitter, getBabysitterById, verifyPhone, updateBabysitter, getAllBabysitters, deleteBabysitter, verifyDocs: verifyDocsService } = require('../services/babySitter');
+const { createBabysitter, getBabysitter, getBabysitterById, verifyPhone, updateBabysitter, getAllBabysitters, deleteBabysitter, verifyDocs: verifyDocsService, getBabysittersByFilter } = require('../services/babySitter');
 const { VerificationCode } = require('../services/twilio');
 
 exports.signup = async (req, res) => {
     const { firstName, lastName, email, phone, password, profession } = req.body;
     try {
+        const existingBabysitter = await getBabysitter(phone, email);
+        if (existingBabysitter) {
+            return res.status(400).json({ message: 'Babysitter already exists' });
+        }
         const phoneVerificationCode = Math.floor(100000 + Math.random() * 900000);
         const hashedPassword = await bcrypt.hash(password, 10);
         const babysitter = await createBabysitter({ firstName, lastName, email, phone, password: hashedPassword, profession, phoneVerificationCode });
@@ -20,13 +24,16 @@ exports.signup = async (req, res) => {
 exports.login = async (req, res) => {
     const { email, phone, password } = req.body;
     try {
-        const babysitter = await getBabysitter(email, phone);
+        const babysitter = await getBabysitter(phone, email);
         if (!babysitter) {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
         const isMatch = await bcrypt.compare(password, babysitter.password);
         if (!isMatch) {
             return res.status(401).json({ message: 'Invalid credentials' });
+        }
+        if (!babysitter.phoneVerified) {
+            return res.status(401).json({ message: 'Phone not verified' });
         }
         const payload = {
             id: babysitter._id,
@@ -120,6 +127,52 @@ exports.getAll = async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 }
+exports.getBabysittersByFilter = async (req, res) => {
+    try {
+        const { latitude, longitude, radius, available } = req.query;
+        
+        // Validate required parameters
+        if (!latitude || !longitude || !radius) {
+            return res.status(400).json({ 
+                message: 'latitude, longitude, and radius are required parameters' 
+            });
+        }
+
+        // Parse parameters
+        const location = {
+            latitude: parseFloat(latitude),
+            longitude: parseFloat(longitude)
+        };
+        const radiusKm = parseFloat(radius);
+        const availableFilter = available !== undefined ? available === 'true' : undefined;
+
+        // Validate numeric values
+        if (isNaN(location.latitude) || isNaN(location.longitude) || isNaN(radiusKm)) {
+            return res.status(400).json({ 
+                message: 'latitude, longitude, and radius must be valid numbers' 
+            });
+        }
+
+        const babysitters = await getBabysittersByFilter(location, radiusKm, availableFilter);
+        
+        res.status(200).json({
+            success: true,
+            count: babysitters.length,
+            filters: {
+                location,
+                radius: radiusKm,
+                available: availableFilter,
+                availabilityLogic: availableFilter === true ? 
+                    'Shows only available babysitters (not in ongoing jobs)' :
+                    'Shows all babysitters in radius'
+            },
+            data: babysitters
+        });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
+
 exports.getById = async (req, res) => {
     try {
         const { id } = req.params;

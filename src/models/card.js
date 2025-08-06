@@ -3,10 +3,7 @@ const mongoose = require('mongoose');
 const cardSchema = new mongoose.Schema({
     customerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Customer' },
     babysitterId: { type: mongoose.Schema.Types.ObjectId, ref: 'Babysitter' },
-    name: { type: String, required: true },
-    number: { type: String, required: true },
-    expiry: { type: String, required: true },
-    cvv: { type: String, required: true }
+    paymentMethodId: { type: String, required: true }
 }, { timestamps: true });
 
 

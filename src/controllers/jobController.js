@@ -22,7 +22,8 @@ exports.getJobs = async (req, res) => {
 
 exports.getJobsByFilter = async (req, res) => {
   try {
-    const jobs = await jobService.getJobsByFilter(req.query);
+    const { location, radius, available }  =  req.query;
+    const jobs = await jobService.getJobsByFilter(location, radius, available);
     res.json(jobs);
   } catch (err) {
     res.status(500).json({ error: err.message });
