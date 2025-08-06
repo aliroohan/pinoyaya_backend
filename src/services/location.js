@@ -1,6 +1,23 @@
 const locationModel = require('../models/location');
 
-exports.createLocation = async (locationData) => {
+exports.createLocation = async (locationData, user) => {
+    let loc = await locationModel.find(
+        { $or: [
+            { customerId: user._id },
+            { babysitterId: user._id }
+        ]
+    }); 
+    if (locationData.isDefault) {
+        loc.forEach(async (loc) => {
+            loc.isDefault = false;
+            await loc.save();
+        });
+        locationData.isDefault = true;
+    }
+    if (loc.length === 0) {
+        locationData.isDefault = true;
+    }
+
     const location = new locationModel(locationData);
     await location.save();
     return location;

@@ -11,7 +11,7 @@ exports.create = async (req, res) => {
         } else {
             return res.status(400).json({ error: 'User must be a customer or babysitter' });
         }
-        const location = await createLocation(locationData);
+        const location = await createLocation(locationData, user);
         res.status(201).json({ message: 'Location created successfully', location });
     } catch (error) {
         res.status(500).json({ error: error.message || 'Internal server error' });
