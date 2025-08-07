@@ -20,5 +20,6 @@ router.use('/transactions', require('./transactions'));
 router.use('/subscription', require('./subscription'));
 router.use('/chat', require('./chat'));
 router.use('/message', require('./message'));
+router.use('/admin', require('./admin'));
 
 module.exports = router; 
