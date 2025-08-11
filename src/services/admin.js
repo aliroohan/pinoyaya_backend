@@ -1,5 +1,6 @@
 const Admin = require('../models/admin');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 
 // Generate JWT token for admin
 const generateToken = (adminId) => {
@@ -35,6 +36,10 @@ exports.login = async (email, password) => {
 
 // Create new admin
 exports.createAdmin = async (adminData) => {
+    const existingAdmin = await Admin.findOne({ email: adminData.email });
+    if (existingAdmin) {
+        throw new Error('Admin already exists');
+    }
     const admin = new Admin(adminData);
     await admin.save();
     
@@ -92,7 +97,9 @@ exports.changePassword = async (id, currentPassword, newPassword) => {
         throw new Error('Current password is incorrect');
     }
     
-    admin.password = newPassword;
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+    admin.password = hashedPassword;
     await admin.save();
     
     return { message: 'Password changed successfully' };

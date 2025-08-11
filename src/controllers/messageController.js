@@ -204,21 +204,6 @@ exports.deleteMessage = async (req, res) => {
     }
 };
 
-exports.searchMessages = async (req, res) => {
-    try {
-        const { searchTerm } = req.query;
-        const userId = req.user._id;
-        
-        if (!searchTerm) {
-            return res.status(400).json({ message: 'Search term is required' });
-        }
-        
-        const messages = await messageService.searchMessages(userId, searchTerm);
-        res.status(200).json(messages);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-};
 
 exports.getOnlineUsers = async (req, res) => {
     try {

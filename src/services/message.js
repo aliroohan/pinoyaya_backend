@@ -142,30 +142,6 @@ exports.deleteMessage = async (messageId, userId) => {
     }
 };
 
-exports.searchMessages = async (userId, searchTerm) => {
-    try {
-        const messages = await Message.find({
-            $and: [
-                {
-                    $or: [
-                        { senderId: userId },
-                        { recipientId: userId }
-                    ]
-                },
-                {
-                    content: { $regex: searchTerm, $options: 'i' }
-                }
-            ]
-        })
-        .sort({ timestamp: -1 })
-        .populate('senderId', 'firstName lastName')
-        .populate('recipientId', 'firstName lastName');
-
-        return messages;
-    } catch (error) {
-        throw new Error(`Failed to search messages: ${error.message}`);
-    }
-};
 
 exports.getOnlineUsers = async (userRole) => {
     try {

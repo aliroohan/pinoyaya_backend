@@ -1,9 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const subscriptionController = require('../controllers/subscriptionController');
+const auth = require('../middleware/auth');
+const adminAuth = require('../middleware/adminAuth');
 
-router.get('/', subscriptionController.getSubscriptions);
-router.post('/', subscriptionController.createSubscription);
-router.post('/:id', subscriptionController.subscribe);
+router.get('/', auth, subscriptionController.getSubscriptions);
+router.post('/', adminAuth, subscriptionController.createSubscription);
+router.post('/:id', auth, subscriptionController.subscribe);
 
 module.exports = router; 
