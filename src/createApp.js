@@ -24,16 +24,6 @@ const createApp = () => {
   // Routes mounted under /api so URLs are /api/<router>
   app.use('/api', require('./routes'));
 
-  // Centralized error handler to avoid unhandled exceptions causing 500 without logs
-  app.use((err, req, res, next) => {
-    console.error('Unhandled error:', err);
-    const statusCode = err && err.status ? err.status : 500;
-    res.status(statusCode).json({
-      success: false,
-      message: err && err.message ? err.message : 'Internal Server Error'
-    });
-  });
-
   return app;
 };
 
