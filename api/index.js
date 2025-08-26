@@ -1,6 +1,12 @@
 const createApp = require('../src/createApp');
 
-// Export the Express app as a Vercel serverless function handler
-module.exports = createApp();
+// Reuse the same app instance across invocations
+let app;
+module.exports = (req, res) => {
+  if (!app) {
+    app = createApp();
+  }
+  return app(req, res);
+};
 
 
