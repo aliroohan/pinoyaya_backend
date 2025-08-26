@@ -6,9 +6,7 @@ const babysitterSchema = new mongoose.Schema({
     phone: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    phoneVerificationCode: { type: String },
     emailVerificationCode: { type: String },
-    phoneVerified: { type: Boolean, default: false },
     emailVerified: { type: Boolean, default: false },
     profession: { type: String, enum: ['Babysitter', 'Tutor', 'HouseKeeper'], required: true },
     photoUrl: { type: String }, // S3 URL

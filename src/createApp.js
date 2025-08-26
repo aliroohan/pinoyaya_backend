@@ -21,8 +21,8 @@ const createApp = () => {
     res.send('Hello World');
   });
 
-  // Routes (mounted at root so Vercel's /api prefix works without doubling)
-  app.use('/', require('./routes'));
+  // Routes mounted under /api so URLs are /api/<router>
+  app.use('/api', require('./routes'));
 
   return app;
 };

@@ -6,8 +6,8 @@ const adminAuth = require('../middleware/adminAuth');
 
 router.post('/login', customerController.login);
 router.post('/signup', customerController.signup);
-router.post('/verify/phone/:id', customerController.verifyPhone);
-router.post('/resendotp', customerController.resendOtp);
+router.post('/verify/email/:id', customerController.verifyEmail);
+router.post('/resend/email', customerController.resendEmail);
 router.post('/resetpassword', customerController.resetPassword);
 router.post('/forgetpassword', customerController.forgetPassword);
 router.post('/childandpets', auth, customerController.childAndPets);

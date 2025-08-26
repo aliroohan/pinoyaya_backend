@@ -2,7 +2,7 @@ const customerModel = require('../models/customer');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { VerificationCode } = require('../services/twilio');
-const { createCustomer, findCustomerByPhone, updateCustomer, deleteCustomer, getAllCustomers, getCustomerById, verifyDocs } = require('../services/customer');
+const { createCustomer, findCustomerByEmail, updateCustomer, deleteCustomer, getAllCustomers, getCustomerById, verifyDocs } = require('../services/customer');
 const { createChild } = require('../services/child');
 const { create } = require('../services/pet');
 const { uploadImage } = require('../services/s3Service');
@@ -50,8 +50,8 @@ exports.signup = async (req, res) => {
             return res.status(400).json({ message: 'Email or phone already exists' });
         }
         // console.log(req.body);
-        const phoneVerificationCode = Math.floor(100000 + Math.random() * 900000);
-        const customer = await createCustomer({ firstName, lastName, email, phone, password, phoneVerificationCode });
+        const emailVerificationCode = Math.floor(100000 + Math.random() * 900000);
+        const customer = await createCustomer({ firstName, lastName, email, phone, password, emailVerificationCode });
         console.log(customer);
         const twilioResponse = await VerificationCode(customer);
         res.status(201).json(customer);
@@ -60,18 +60,18 @@ exports.signup = async (req, res) => {
     }
 };
 
-exports.verifyPhone = async (req, res) => {
-    const { phone, code } = req.body;
-    const customer = await findCustomerByPhone(phone);
+exports.verifyEmail = async (req, res) => {
+    const { email, code } = req.body;
+    const customer = await findCustomerByEmail(email);
     if (!customer) {
         return res.status(400).json({ message: 'Customer not found' });
     }
-    if (customer.phoneVerificationCode !== code) {
+    if (customer.emailVerificationCode !== code) {
         return res.status(400).json({ message: 'Invalid code' });
     }
-    customer.phoneVerified = true;
+    customer.emailVerified = true;
     await customer.save();
-    res.status(200).json({ message: 'Phone verified' });
+    res.status(200).json({ message: 'Email verified' });
 }
 
 exports.childAndPets = async (req, res) => {

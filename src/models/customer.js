@@ -7,8 +7,8 @@ const customerSchema = new mongoose.Schema({
     phone: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    phoneVerificationCode: { type: String },
-    phoneVerified: { type: Boolean, default: false },
+    emailVerificationCode: { type: String },
+    emailVerified: { type: Boolean, default: false },
     photoUrl: { type: String }, // S3 URL
     verificationIdPhotoUrls: [{ type: String }], // S3 URLs
     description: { type: String },
