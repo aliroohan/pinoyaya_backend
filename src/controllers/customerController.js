@@ -2,6 +2,7 @@ const customerModel = require('../models/customer');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { VerificationCode } = require('../services/twilio');
+const { sendOtpEmail } = require('../services/mail');
 const { createCustomer, findCustomerByEmail, updateCustomer, deleteCustomer, getAllCustomers, getCustomerById, verifyDocs } = require('../services/customer');
 const { createChild } = require('../services/child');
 const { create } = require('../services/pet');
@@ -53,7 +54,7 @@ exports.signup = async (req, res) => {
         const emailVerificationCode = Math.floor(100000 + Math.random() * 900000);
         const customer = await createCustomer({ firstName, lastName, email, phone, password, emailVerificationCode });
         console.log(customer);
-        const twilioResponse = await VerificationCode(customer);
+        const emailResponse = await sendOtpEmail(customer.email, emailVerificationCode, customer.firstName);
         res.status(201).json(customer);
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -119,10 +120,10 @@ exports.resendOtp = async (req, res) => {
         if (!customer) {
             return res.status(400).json({ message: 'Customer not found' });
         }
-        const phoneVerificationCode = Math.floor(100000 + Math.random() * 900000);
-        const user = await updateCustomer(customer._id, { phoneVerificationCode });
-        const twilioResponse = await VerificationCode(customer, phoneVerificationCode);
-        res.status(200).json({ message: 'OTP sent successfully', twilioResponse });
+        const emailVerificationCode = Math.floor(100000 + Math.random() * 900000);
+        const user = await updateCustomer(customer._id, { emailVerificationCode });
+        const emailResponse = await sendOtpEmail(customer.email, emailVerificationCode, customer.firstName);
+        res.status(200).json({ message: 'OTP sent successfully', emailResponse });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
@@ -150,10 +151,10 @@ exports.forgetPassword = async (req, res) => {
         if (!customer) {
             return res.status(400).json({ message: 'Customer not found' });
         }
-        const phoneVerificationCode = Math.floor(100000 + Math.random() * 900000);
-        const user = await updateCustomer(customer._id, { phoneVerificationCode, phoneVerified: false });
-        const twilioResponse = await VerificationCode(customer, phoneVerificationCode);
-        res.status(200).json({ message: 'OTP sent successfully', twilioResponse });
+        const emailVerificationCode = Math.floor(100000 + Math.random() * 900000);
+        const user = await updateCustomer(customer._id, { emailVerificationCode, emailVerified: false });
+        const emailResponse = await sendOtpEmail(customer.email, emailVerificationCode, customer.firstName);
+        res.status(200).json({ message: 'OTP sent successfully', emailResponse });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
