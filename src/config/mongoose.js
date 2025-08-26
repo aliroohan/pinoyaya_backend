@@ -2,16 +2,23 @@ const mongoose = require('mongoose');
 
 const mongoURI = process.env.MONGO_URI || 'mongodb://localhost:27017/pinoyaya';
 
+let cachedConnection = null;
+
 const connectDB = async () => {
+  if (cachedConnection) {
+    return cachedConnection;
+  }
   try {
-    await mongoose.connect(mongoURI, {
+    cachedConnection = await mongoose.connect(mongoURI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
     console.log('MongoDB connected');
+    return cachedConnection;
   } catch (err) {
     console.error('MongoDB connection error:', err);
-    process.exit(1);
+    // Do not exit the process in serverless; rethrow instead
+    throw err;
   }
 };
 
