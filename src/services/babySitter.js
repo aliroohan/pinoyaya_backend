@@ -31,15 +31,15 @@ exports.getBabysitter = async (phone, email = null) => {
     return babysitter;
 };
 
-exports.verifyPhone = async (phone, code) => {
-    const babysitter = await exports.getBabysitter(phone, null);
+exports.verifyEmail = async (email, code) => {
+    const babysitter = await exports.getBabysitter(null, email);
     if (!babysitter) {
         throw new Error('Babysitter not found');
     }
-    if (babysitter.phoneVerificationCode !== code) {
+    if (babysitter.emailVerificationCode !== code) {
         throw new Error('Invalid verification code');
     }
-    babysitter.phoneVerified = true;
+    babysitter.emailVerified = true;
     await babysitter.save();
     return babysitter;
 };

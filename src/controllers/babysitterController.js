@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { createBabysitter, getBabysitter, getBabysitterById, verifyPhone, updateBabysitter, getAllBabysitters, deleteBabysitter, verifyDocs: verifyDocsService, getBabysittersByFilter } = require('../services/babySitter');
-const { VerificationCode } = require('../services/twilio');
+const { createBabysitter, getBabysitter, getBabysitterById, verifyEmail, updateBabysitter, getAllBabysitters, deleteBabysitter, verifyDocs: verifyDocsService, getBabysittersByFilter } = require('../services/babySitter');
+const { sendOtpEmail } = require('../services/mail');
 
 exports.signup = async (req, res) => {
     const { firstName, lastName, email, phone, password, profession } = req.body;
@@ -10,11 +10,11 @@ exports.signup = async (req, res) => {
         if (existingBabysitter) {
             return res.status(400).json({ message: 'Babysitter already exists' });
         }
-        const phoneVerificationCode = Math.floor(100000 + Math.random() * 900000);
+        const emailVerificationCode = Math.floor(100000 + Math.random() * 900000);
         const hashedPassword = await bcrypt.hash(password, 10);
-        const babysitter = await createBabysitter({ firstName, lastName, email, phone, password: hashedPassword, profession, phoneVerificationCode });
+        const babysitter = await createBabysitter({ firstName, lastName, email, phone, password: hashedPassword, profession, emailVerificationCode });
         const token = jwt.sign({ id: babysitter._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
-        const message = await VerificationCode(babysitter);
+        const message = await sendOtpEmail(babysitter.email, emailVerificationCode, babysitter.firstName);
         res.status(201).json({ token, babysitter });
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -32,8 +32,8 @@ exports.login = async (req, res) => {
         if (!isMatch) {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
-        if (!babysitter.phoneVerified) {
-            return res.status(401).json({ message: 'Phone not verified' });
+        if (!babysitter.emailVerified) {
+            return res.status(401).json({ message: 'Email not verified' });
         }
         const payload = {
             id: babysitter._id,
@@ -47,27 +47,27 @@ exports.login = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
-exports.verifyPhone = async (req, res) =>  {
-    const { phone, code } = req.body;
+exports.verifyEmail = async (req, res) =>  {
+    const { email, code } = req.body;
     try {
-        const babysitter = await verifyPhone(phone, code);
+        const babysitter = await verifyEmail(email, code);
         res.json({ babysitter });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
 }
 
-exports.resendOtp = async (req, res) => {
-    const { phone } = req.body;
+exports.resendEmail = async (req, res) => {
+    const { email } = req.body;
     try {
-        const babysitter = await getBabysitter(phone);
+        const babysitter = await getBabysitter(null, email);
         if (!babysitter) {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
-        const phoneVerificationCode = Math.floor(100000 + Math.random() * 900000);
-        babysitter.phoneVerificationCode = phoneVerificationCode;
+        const emailVerificationCode = Math.floor(100000 + Math.random() * 900000);
+        babysitter.emailVerificationCode = emailVerificationCode;
         await babysitter.save();
-        const message = await VerificationCode(babysitter);
+        const message = await sendOtpEmail(babysitter.email, emailVerificationCode, babysitter.firstName);
         res.json({ babysitter });
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -88,9 +88,9 @@ exports.uploadImages = async (req, res) => {
     }
 }
 exports.resetPassword = async (req, res) => {
-    const { phone, password } = req.body;
+    const { email, password } = req.body;
     try {
-        const babysitter = await getBabysitter(phone);
+        const babysitter = await getBabysitter(null, email);
         if (!babysitter) {
             return res.status(400).json({ message: 'Babysitter not found' });
         }
@@ -103,18 +103,18 @@ exports.resetPassword = async (req, res) => {
 }
 
 exports.forgetPassword = async (req, res) => {
-    const { phone } = req.body;
+    const { email } = req.body;
     try {
-        const babysitter = await getBabysitter(phone);
+        const babysitter = await getBabysitter(null, email);
         if (!babysitter) {
             return res.status(400).json({ message: 'Babysitter not found' });
         }
-        const phoneVerificationCode = Math.floor(100000 + Math.random() * 900000);
-        babysitter.phoneVerificationCode = phoneVerificationCode;
-        babysitter.phoneVerified = false;
-        const babysitterData = await updateBabysitter(babysitter._id, { phoneVerificationCode, phoneVerified: false });
-        const message = await VerificationCode(babysitterData);
-        res.status(200).json({ message: 'Password reset code sent to phone', babysitter: babysitterData });
+        const emailVerificationCode = Math.floor(100000 + Math.random() * 900000);
+        babysitter.emailVerificationCode = emailVerificationCode;
+        babysitter.emailVerified = false;
+        const babysitterData = await updateBabysitter(babysitter._id, { emailVerificationCode, emailVerified: false });
+        const message = await sendOtpEmail(babysitterData.email, emailVerificationCode, babysitterData.firstName);
+        res.status(200).json({ message: 'Password reset code sent to email', babysitter: babysitterData });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }

@@ -1,7 +1,6 @@
 const customerModel = require('../models/customer');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { VerificationCode } = require('../services/twilio');
 const { sendOtpEmail } = require('../services/mail');
 const { createCustomer, findCustomerByEmail, updateCustomer, deleteCustomer, getAllCustomers, getCustomerById, verifyDocs } = require('../services/customer');
 const { createChild } = require('../services/child');
@@ -13,7 +12,6 @@ const upload = multer();
 exports.login = async (req, res) => {
     const { email, phone, password } = req.body;
     try {
-        debugger;
         const customer = await customerModel.findOne({
             $or: [
                 { email: email || null },
@@ -23,8 +21,8 @@ exports.login = async (req, res) => {
         if (!customer) {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
-        if (!customer.phoneVerified) {
-            return res.status(401).json({ message: 'Phone not verified' });
+        if (!customer.emailVerified) {
+            return res.status(401).json({ message: 'Email not verified' });
         }
         const isMatch = await bcrypt.compare(password, customer.password);
         if (!isMatch) {
@@ -42,20 +40,16 @@ exports.login = async (req, res) => {
     }
 };
 exports.signup = async (req, res) => {
-    debugger;
-    // console.log(req.body);
     const { firstName, lastName, email, phone, password } = req.body;
     try {
         const existingCustomer = await customerModel.findOne({ email: email, phone: phone });
         if (existingCustomer) {
             return res.status(400).json({ message: 'Email or phone already exists' });
-        }
-        // console.log(req.body);
+        }   
         const emailVerificationCode = Math.floor(100000 + Math.random() * 900000);
         const customer = await createCustomer({ firstName, lastName, email, phone, password, emailVerificationCode });
-        console.log(customer);
         const emailResponse = await sendOtpEmail(customer.email, emailVerificationCode, customer.firstName);
-        res.status(201).json(customer);
+        res.status(201).json({ message: 'Customer created successfully', customer });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
@@ -113,10 +107,10 @@ exports.uploadImages = [
 }];
 
 
-exports.resendOtp = async (req, res) => {
-    const { phone } = req.body;
+exports.resendEmail = async (req, res) => {
+    const { email } = req.body;
     try {
-        const customer = await findCustomerByPhone(phone);
+        const customer = await findCustomerByEmail(email);
         if (!customer) {
             return res.status(400).json({ message: 'Customer not found' });
         }
@@ -130,9 +124,9 @@ exports.resendOtp = async (req, res) => {
 }
 
 exports.resetPassword = async (req, res) => {
-    const { phone, password } = req.body;
+    const { email, password } = req.body;
     try {
-        const customer = await findCustomerByPhone(phone);
+        const customer = await findCustomerByEmail(email);
         if (!customer) {
             return res.status(400).json({ message: 'Customer not found' });
         }
@@ -145,9 +139,9 @@ exports.resetPassword = async (req, res) => {
 }
 
 exports.forgetPassword = async (req, res) => {
-    const { phone } = req.body;
+    const { email } = req.body;
     try {
-        const customer = await findCustomerByPhone(phone);
+        const customer = await findCustomerByEmail(email);
         if (!customer) {
             return res.status(400).json({ message: 'Customer not found' });
         }
