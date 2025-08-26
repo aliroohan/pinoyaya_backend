@@ -8,7 +8,7 @@ router.post('/login', adminController.login);
 router.post('/create', adminController.createAdmin);
 router.get('/profile', adminAuth, adminController.getProfile);
 router.get('/', adminAuth, adminController.getAllAdmins);
-router.get('/:id', adminAuth                                                                                    , adminController.getAdminById);
+router.get('/:id', adminAuth, adminController.getAdminById);
 router.patch('/:id', adminAuth, adminController.updateAdmin);
 router.delete('/:id', adminAuth, adminController.deleteAdmin);
 router.patch('/change-password', adminAuth, adminController.changePassword);

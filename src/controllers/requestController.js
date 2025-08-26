@@ -2,7 +2,7 @@ const requestService = require('../services/request');
 
 exports.create = async (req, res) => {
   try {
-    const request = await requestService.create(req.body);
+    const request = await requestService.create(req.body, req.user);
     res.status(201).json(request);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -20,16 +20,16 @@ exports.getByJob = async (req, res) => {
 
 exports.getByCustomer = async (req, res) => {
   try {
-    const requests = await requestService.getByCustomer(req.params.customerId);
+    const requests = await requestService.getByCustomer(req.user._id);
     res.json(requests);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
-};
+};  
 
 exports.getByBabysitter = async (req, res) => {
   try {
-    const requests = await requestService.getByBabysitter(req.params.babysitterId);
+    const requests = await requestService.getByBabysitter(req.user._id);
     res.json(requests);
   } catch (err) {
     res.status(500).json({ error: err.message });
