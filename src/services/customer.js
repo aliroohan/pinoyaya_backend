@@ -6,8 +6,8 @@ exports.createCustomer = async (customerData) => {
     return customer;
 };
 
-exports.findCustomerByPhone = async (phone) => {
-    const customer = await customerModel.findOne({ phone });
+exports.findCustomerByEmail = async (email) => {
+    const customer = await customerModel.findOne({ email });
     return customer;
 };
 
