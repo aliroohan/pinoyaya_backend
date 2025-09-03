@@ -49,6 +49,12 @@ exports.signup = async (req, res) => {
         const emailVerificationCode = Math.floor(100000 + Math.random() * 900000);
         const customer = await createCustomer({ firstName, lastName, email, phone, password, emailVerificationCode });
         const emailResponse = await sendOtpEmail(customer.email, emailVerificationCode, customer.firstName);
+        const payload = {
+            id: customer._id,
+            email: customer.email,
+            phone: customer.phone
+        };
+        const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '7d' });
         res.status(201).json({ message: 'Customer created successfully', customer });
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -129,6 +135,9 @@ exports.resetPassword = async (req, res) => {
         const customer = await findCustomerByEmail(email);
         if (!customer) {
             return res.status(400).json({ message: 'Customer not found' });
+        }
+        if (!customer.emailVerified) {
+            return res.status(400).json({ message: 'Verify your email first' });
         }
         const hashedPassword = await bcrypt.hash(password, 10);
         await updateCustomer(customer._id, { password: hashedPassword });

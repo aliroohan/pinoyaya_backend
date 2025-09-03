@@ -1,37 +1,39 @@
 const customerModel = require('../models/customer');
 
 exports.createCustomer = async (customerData) => {
-    const customer = new customerModel(customerData);
-    await customer.save();
-    return customer;
+	const customer = new customerModel(customerData);
+	await customer.save();
+	const customerObj = customer.toObject();
+	delete customerObj.password;
+	return customerObj;
 };
 
 exports.findCustomerByEmail = async (email) => {
-    const customer = await customerModel.findOne({ email });
-    return customer;
+	const customer = await customerModel.findOne({ email }).select('-password');
+	return customer;
 };
 
 exports.updateCustomer = async (customerId, customerData) => {
-    const customer = await customerModel.findByIdAndUpdate(customerId, customerData, { new: true });
-    return customer;
+	const customer = await customerModel.findByIdAndUpdate(customerId, customerData, { new: true }).select('-password');
+	return customer;
 };
 
 exports.deleteCustomer = async (customerId) => {
-    const customer = await customerModel.findByIdAndDelete(customerId);
-    return customer;
+	const customer = await customerModel.findByIdAndDelete(customerId).select('-password');
+	return customer;
 };
 
 exports.getAllCustomers = async () => {
-    const customers = await customerModel.find();
-    return customers;
+	const customers = await customerModel.find().select('-password');
+	return customers;
 };
 
 exports.getCustomerById = async (customerId) => {
-    const customer = await customerModel.findById(customerId);
-    return customer;
+	const customer = await customerModel.findById(customerId).select('-password');
+	return customer;
 };
 
 exports.verifyDocs = async (customerId) => {
-    const customer = await customerModel.findByIdAndUpdate(customerId, { idVerified: true });
-    return customer;
+	const customer = await customerModel.findByIdAndUpdate(customerId, { idVerified: true }).select('-password');
+	return customer;
 };
