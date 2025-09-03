@@ -55,7 +55,7 @@ exports.signup = async (req, res) => {
             phone: customer.phone
         };
         const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '7d' });
-        res.status(201).json({ message: 'Customer created successfully', customer });
+        res.status(201).json({ message: 'Customer created successfully',token, customer : payload});
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
