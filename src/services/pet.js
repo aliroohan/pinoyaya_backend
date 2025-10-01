@@ -4,8 +4,8 @@ exports.create = async (data) => {
   return await petModel.create(data);
 };
 
-exports.getAll = async () => {
-  return await petModel.find();
+exports.getAll = async (id) => {
+  return await petModel.find({customerId: id});
 };
 
 exports.update = async (id, data) => {

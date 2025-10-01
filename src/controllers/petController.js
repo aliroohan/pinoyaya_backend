@@ -2,8 +2,11 @@ const petService = require('../services/pet');
 
 exports.getAll = async (req, res) => {
   try {
-    const pets = await petService.getAll();
-    res.json(pets);
+    const user = req.user._id;
+    const pets = await petService.getAll(user);
+    res.json({
+      message: "pets fetched successfully",
+      data : pets});
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
