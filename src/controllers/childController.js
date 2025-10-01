@@ -4,7 +4,10 @@ exports.getAll = async (req, res) => {
     try {
         const user = req.user;
         const children = await findChildsByCustomerId(user._id);
-        res.status(200).json(children);
+        res.status(200).json({
+            message: 'Children fetched successfully',
+            data: children,
+        });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
