@@ -1,5 +1,14 @@
 const petService = require('../services/pet');
 
+
+exports.create = async (req, res) => {
+  try {
+    const pet = await petService.create(req.body);
+    res.status(201).json(pet);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 exports.getAll = async (req, res) => {
   try {
     const user = req.user._id;
