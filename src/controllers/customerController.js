@@ -31,7 +31,9 @@ exports.login = async (req, res) => {
         const payload = {
             id: customer._id,
             email: customer.email,
-            phone: customer.phone
+            phone: customer.phone,
+            firstName: customer.firstName,
+            lastName: customer.lastName
         };
         const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '7d' });
         res.json({ token, customer: payload });
@@ -52,7 +54,9 @@ exports.signup = async (req, res) => {
         const payload = {
             id: customer._id,
             email: customer.email,
-            phone: customer.phone
+            phone: customer.phone,
+            firstName: customer.firstName,
+            lastName: customer.lastName
         };
         const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '7d' });
         res.status(201).json({ message: 'Customer created successfully',token, customer : payload});
