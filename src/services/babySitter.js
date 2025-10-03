@@ -5,6 +5,10 @@ const jobModel = require('../models/job');
 
 exports.getAllBabysitters = async () => {
     const babysitters = await babysitterModel.find();
+    const babysittersWithLocation = await locationModel.find({ babysitterId: { $in: babysitters.map(babysitter => babysitter._id) } });
+    babysitters.forEach(babysitter => {
+        babysitter.city = babysittersWithLocation.find(location => location.babysitterId === babysitter._id).city;
+    });
     return babysitters;
 };
 
