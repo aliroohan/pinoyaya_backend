@@ -122,7 +122,7 @@ exports.forgetPassword = async (req, res) => {
 exports.getAll = async (req, res) => {
     try {
         const babysitters = await getAllBabysitters();
-        res.status(200).json(babysitters);
+        res.status(200).json({status: "success", data: babysitters});
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
