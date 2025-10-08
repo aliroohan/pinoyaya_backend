@@ -1,6 +1,8 @@
 const babysitterModel = require('../models/babysitter');
 const walletModel = require('../models/wallet');
 const locationModel = require('../models/location');
+const jobService = require('./job');
+const reviewService = require('./review');
 const jobModel = require('../models/job');
 
 exports.getAllBabysitters = async () => {
@@ -22,6 +24,11 @@ exports.createBabysitter = async (babysitterData) => {
 
 exports.getBabysitterById = async (id) => {
     const babysitter = await babysitterModel.findById(id);
+    const jobCount = await jobService.getJobCountByBabysitterId(id);
+    babysitter.jobCount = jobCount;
+    const reviews = await reviewService.getByBabysitter(id);
+    
+
     return babysitter;
 };
 

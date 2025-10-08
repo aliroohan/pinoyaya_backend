@@ -14,6 +14,10 @@ exports.findCustomerByEmail = async (email) => {
 };
 
 exports.updateCustomer = async (customerId, customerData) => {
+	const cust = await customerModel.findOne({ email: customerData.email });
+	if (cust && cust._id.toString() !== customerId) {
+		throw new Error('Email already exists');
+	}
 	const customer = await customerModel.findByIdAndUpdate(customerId, customerData, { new: true }).select('-password');
 	return customer;
 };
