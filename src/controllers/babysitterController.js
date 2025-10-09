@@ -157,6 +157,7 @@ exports.getBabysittersByFilter = async (req, res) => {
 exports.getById = async (req, res) => {
     try {
         const { id } = req.params;
+        console.log(id);
         const babysitter = await getBabysitterById(id);
         if (!babysitter) {
             return res.status(404).json({ message: 'Babysitter not found' });

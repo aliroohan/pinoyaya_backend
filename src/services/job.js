@@ -22,6 +22,10 @@ exports.getJobCountByBabysitterId = async (babysitterId) => {
   let availableJobs = jobs.filter(job => job.status === 'available');
   let ongoingJobs = jobs.filter(job => job.status === 'ongoing');
   let completedJobs = jobs.filter(job => job.status === 'completed');
+  console.log(jobs);
+  console.log(availableJobs);
+  console.log(ongoingJobs);
+  console.log(completedJobs);
   return {
     availableJobs: availableJobs.length,
     ongoingJobs: ongoingJobs.length,

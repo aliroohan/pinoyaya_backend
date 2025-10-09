@@ -24,11 +24,21 @@ exports.createBabysitter = async (babysitterData) => {
 
 exports.getBabysitterById = async (id) => {
     const babysitter = await babysitterModel.findById(id);
+    
+    if (!babysitter) {
+        return null;
+    }
+    
     const jobCount = await jobService.getJobCountByBabysitterId(id);
-    babysitter.jobCount = jobCount;
     const reviews = await reviewService.getByBabysitter(id);
-    babysitter.reviews = reviews;
-    return babysitter;
+    
+    // Convert Mongoose document to plain object and add extra properties
+    const babysitterObj = babysitter.toObject();
+    babysitterObj.jobCount = jobCount;
+    babysitterObj.reviews = reviews;
+    
+    console.log('Final babysitter object:', babysitterObj);
+    return babysitterObj;
 };
 
 exports.getBabysitter = async (phone, email = null) => {
