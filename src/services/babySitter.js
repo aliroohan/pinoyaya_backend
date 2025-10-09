@@ -27,8 +27,7 @@ exports.getBabysitterById = async (id) => {
     const jobCount = await jobService.getJobCountByBabysitterId(id);
     babysitter.jobCount = jobCount;
     const reviews = await reviewService.getByBabysitter(id);
-    
-
+    babysitter.reviews = reviews;
     return babysitter;
 };
 

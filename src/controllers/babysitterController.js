@@ -15,7 +15,7 @@ exports.signup = async (req, res) => {
         const babysitter = await createBabysitter({ firstName, lastName, email, phone, password: hashedPassword, profession, emailVerificationCode });
         const token = jwt.sign({ id: babysitter._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
         const message = await sendOtpEmail(babysitter.email, emailVerificationCode, babysitter.firstName);
-        res.status(201).json({ token, babysitter });
+        res.status(201).json({ status: "success", data: { token, babysitter } });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
@@ -42,7 +42,7 @@ exports.login = async (req, res) => {
             profession: babysitter.profession
         };
         const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '7d' });
-        res.json({ token, babysitter: payload });
+        res.json({ status: "success", data: { token, babysitter: payload } });
     } catch (err) {
         res.status(500).json({ message: 'Server error' });
     }
@@ -51,7 +51,7 @@ exports.verifyEmail = async (req, res) =>  {
     const { email, code } = req.body;
     try {
         const babysitter = await verifyEmail(email, code);
-        res.json({ babysitter });
+        res.json({ status: "success", data: babysitter });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
@@ -68,7 +68,7 @@ exports.resendEmail = async (req, res) => {
         babysitter.emailVerificationCode = emailVerificationCode;
         await babysitter.save();
         const message = await sendOtpEmail(babysitter.email, emailVerificationCode, babysitter.firstName);
-        res.json({ babysitter });
+        res.json({ status: "success", data: babysitter });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
@@ -82,7 +82,7 @@ exports.uploadImages = async (req, res) => {
         const frontImageUrl = await uploadImages(front, babySitterId);
         const backImageUrl = await uploadImages(back, babySitterId);
         const babysitter = await updateBabysitter(babySitterId, { photoUrl: photoUrl, verificationIdPhotoUrls: [frontImageUrl, backImageUrl] });
-        res.status(200).json({ message: 'Images uploaded successfully', babysitter });
+        res.status(200).json({ status: "success", message: 'Images uploaded successfully', data: babysitter });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
@@ -96,7 +96,7 @@ exports.resetPassword = async (req, res) => {
         }
         const hashedPassword = await bcrypt.hash(password, 10);
         await updateBabysitter(babysitter._id, { password: hashedPassword });
-        res.status(200).json({ message: 'Password reset successfully' });
+        res.status(200).json({ status: "success", message: 'Password reset successfully' });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
@@ -114,7 +114,7 @@ exports.forgetPassword = async (req, res) => {
         babysitter.emailVerified = false;
         const babysitterData = await updateBabysitter(babysitter._id, { emailVerificationCode, emailVerified: false });
         const message = await sendOtpEmail(babysitterData.email, emailVerificationCode, babysitterData.firstName);
-        res.status(200).json({ message: 'Password reset code sent to email', babysitter: babysitterData });
+        res.status(200).json({ status: "success", message: 'Password reset code sent to email', data: babysitterData });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
@@ -161,7 +161,7 @@ exports.getById = async (req, res) => {
         if (!babysitter) {
             return res.status(404).json({ message: 'Babysitter not found' });
         }
-        res.status(200).json(babysitter);
+        res.status(200).json({ status: "success", data: babysitter });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
@@ -174,7 +174,7 @@ exports.update = async (req, res) => {
         if (!babysitter) {
             return res.status(404).json({ message: 'Babysitter not found' });
         }
-        res.status(200).json(babysitter);
+        res.status(200).json({ status: "success", data: babysitter });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
@@ -186,7 +186,7 @@ exports.delete = async (req, res) => {
         if (!babysitter) {
             return res.status(404).json({ message: 'Babysitter not found' });
         }
-        res.status(200).json({ message: 'Babysitter deleted successfully' });
+        res.status(200).json({ status: "success", message: 'Babysitter deleted successfully' });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
@@ -198,7 +198,7 @@ exports.verifyDocs = async (req, res) => {
         if (!babysitter) {
             return res.status(404).json({ message: 'Babysitter not found' });
         }
-        res.status(200).json({ message: 'Documents verified successfully', babysitter });
+        res.status(200).json({ status: "success", message: 'Documents verified successfully', babysitter });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
