@@ -1,6 +1,11 @@
 const reviewModel = require('../models/review');
+const jobModel = require('../models/job');
 
 exports.create = async (data) => {
+  const job = await jobModel.findById(data.jobId);
+  job.reviewed = true;
+  await job.save();
+
   const review = new reviewModel(data);
   return await review.save();
 };

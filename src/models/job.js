@@ -18,7 +18,8 @@ const jobSchema = new mongoose.Schema({
     childId: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Child' }],
     location: { type: mongoose.Schema.Types.ObjectId, ref: 'Location' },
     totalHours: { type: Number },
-    price: { type: Number }
+    price: { type: Number },
+    reviewed: { type: Boolean, default: false }
 }, { timestamps: true });
 
 jobSchema.pre('save', function(next) {
