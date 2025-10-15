@@ -11,7 +11,7 @@ const jobSchema = new mongoose.Schema({
     endDate: { type: Date },
     startTime: { type: String },
     endTime: { type: String },
-    status: {type: String, enum: ["available", "completed", "ongoing"], default: "available"},
+    status: {type: String, enum: ["available", "completed", "ongoing", "cancelled"], default: "available"},
     experience: { type: String, enum: ['0-2', '3-5', '6+'] },
     vaccination: { type: Boolean },
     liveIn: { type: Boolean },

@@ -10,7 +10,31 @@ exports.getJobs = async () => {
 };
 
 exports.getJobsByCustomerId = async (customerId) => {
-  return await jobModel.find({ customerId: customerId }).populate('customerId').populate('babysitterId').populate('childId').populate('location');
+  let onGoing = [];
+  let completed = [];
+  let cancelled = [];
+  let feedbackPending = [];
+  const jobs = await jobModel.find({ customerId: customerId }).populate('babysitterId');
+  jobs.forEach(job => {
+    if (job.status === 'ongoing') {
+      onGoing.push(job);
+    } else if (job.status === 'completed') {
+      completed.push(job);
+      if (!job.reviewed) {
+        feedbackPending.push(job);
+      }
+    } else if (job.status === 'cancelled') {
+      cancelled.push(job);
+    }
+  });
+  return {
+    onGoing,
+    completed,
+    cancelled,
+    feedbackPending
+  };
+
+
 };
 
 exports.getJobsByBabysitterId = async (babysitterId) => {

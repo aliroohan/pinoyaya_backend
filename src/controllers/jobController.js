@@ -32,7 +32,7 @@ exports.getJobsByFilter = async (req, res) => {
 exports.getJobsByCustomerId = async (req, res) => {
   try {
     const jobs = await jobService.getJobsByCustomerId(req.params.customerId);
-    res.json(jobs);
+    res.json({message: "Jobs fetched successfully", data: jobs});
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -41,7 +41,7 @@ exports.getJobsByCustomerId = async (req, res) => {
 exports.getJobsByBabysitterId = async (req, res) => {
   try {
     const jobs = await jobService.getJobsByBabysitterId(req.params.babysitterId);
-    res.json(jobs);
+    res.json({message: "Jobs fetched successfully", data: jobs});
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
