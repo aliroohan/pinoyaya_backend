@@ -12,12 +12,7 @@ const upload = multer();
 exports.login = async (req, res) => {
     const { email, phone, password } = req.body;
     try {
-        const customer = await customerModel.findOne({
-            $or: [
-                { email: email || null },
-                { phone: phone || null }
-            ]
-        }).select('-password');
+        const customer = await customerModel.findOne({ email: email }).select('-password');
         if (!customer) {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
