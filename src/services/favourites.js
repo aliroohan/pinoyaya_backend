@@ -15,6 +15,6 @@ exports.getByCustomer = async (customerId) => {
     return favourites;
 }
 
-exports.delete = async (id) => {
+exports.deleteFavourite = async (id) => {
     await favouriteModel.findByIdAndDelete(id);
 }
