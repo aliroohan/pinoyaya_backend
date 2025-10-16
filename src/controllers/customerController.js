@@ -17,7 +17,7 @@ exports.login = async (req, res) => {
                 { email: email || null },
                 { phone: phone || null }
             ]
-        });
+        }).select('-password');
         if (!customer) {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
@@ -30,15 +30,12 @@ exports.login = async (req, res) => {
         }
         const payload = {
             id: customer._id,
-            email: customer.email,
-            phone: customer.phone,
-            firstName: customer.firstName,
-            lastName: customer.lastName
+            ...customer.toObject()
         };
         const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '7d' });
-        res.json({ token, customer: payload });
+        res.json({ status: "success", data: { token, customer: payload } });
     } catch (err) {
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: err.message });
     }
 };
 exports.signup = async (req, res) => {
