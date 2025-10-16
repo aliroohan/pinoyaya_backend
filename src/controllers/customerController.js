@@ -10,9 +10,9 @@ const multer = require('multer');
 const upload = multer();
 
 exports.login = async (req, res) => {
-    const { email, phone, password } = req.body;
+    const { email, password } = req.body;
     try {
-        const customer = await customerModel.findOne({ email: email }).select('-password');
+        const customer = await customerModel.findOne({ email: email });
         if (!customer) {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
@@ -27,6 +27,7 @@ exports.login = async (req, res) => {
             id: customer._id,
             ...customer.toObject()
         };
+        delete payload.password;
         const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '7d' });
         res.json({ status: "success", data: { token, customer: payload } });
     } catch (err) {
