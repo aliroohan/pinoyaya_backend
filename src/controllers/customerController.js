@@ -53,10 +53,12 @@ exports.signup = async (req, res) => {
             email: customer.email,
             phone: customer.phone,
             firstName: customer.firstName,
-            lastName: customer.lastName
+            lastName: customer.lastName,
+            ...customer.toObject()
         };
+        delete payload.password;
         const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '7d' });
-        res.status(201).json({ message: 'Customer created successfully',token, customer : payload});
+        res.status(201).json({ status: "success", data: { token, customer: payload } });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
