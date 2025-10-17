@@ -4,7 +4,7 @@ const { createBabysitter, getBabysitter, getBabysitterById, verifyEmail, updateB
 const { sendOtpEmail } = require('../services/mail');
 
 exports.signup = async (req, res) => {
-    const { firstName, lastName, email, phone, password, profession } = req.body;
+    const { firstName, lastName, email, phone, password } = req.body;
     try {
         const existingBabysitter = await getBabysitter(phone, email);
         if (existingBabysitter) {
@@ -12,10 +12,25 @@ exports.signup = async (req, res) => {
         }
         const emailVerificationCode = Math.floor(100000 + Math.random() * 900000);
         const hashedPassword = await bcrypt.hash(password, 10);
-        const babysitter = await createBabysitter({ firstName, lastName, email, phone, password: hashedPassword, profession, emailVerificationCode });
-        const token = jwt.sign({ id: babysitter._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+        const babysitter = await createBabysitter({ firstName, lastName, email, phone, password: hashedPassword, emailVerificationCode });
         const message = await sendOtpEmail(babysitter.email, emailVerificationCode, babysitter.firstName);
-        res.status(201).json({ status: "success", data: { token, babysitter } });
+        const payload = {
+            id: babysitter._id,
+            ...babysitter.toObject()
+        };
+        delete payload.password;
+        const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '7d' });
+        res.status(201).json({ status: "success", data: { token, babysitter: payload } });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+}
+
+exports.updateProfession = async (req, res) => {
+    const { profession } = req.body;
+    try {
+        const babysitter = await updateBabysitter(req.user._id, { profession });
+        res.status(200).json({ status: "success", data: babysitter });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
