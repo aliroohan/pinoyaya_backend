@@ -43,7 +43,7 @@ exports.addMultiple =[
         for (const file of files) {
             await createCertificate({
                 babysitterId,
-                type: file.type,
+                type: type,
                 fileBuffer: file.buffer,
                 originalName: file.originalname,
                 mimetype: file.mimetype
