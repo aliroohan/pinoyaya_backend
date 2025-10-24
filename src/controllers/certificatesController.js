@@ -31,13 +31,22 @@ exports.addMultiple =[
         const { files } = req.files;
         const {type} = req.body;
         const babysitterId = req.user._id;
+
+        if (!files || files.length === 0) {
+            return res.status(400).json({ error: 'No files provided' });
+        }
+        
+        // Validate that type is provided
+        if (!type) {
+            return res.status(400).json({ error: 'Certificate type is required' });
+        }
         for (const file of files) {
             await createCertificate({
                 babysitterId,
-                type: certificate.type,
-                fileBuffer: certificate.fileBuffer,
-                originalName: certificate.originalName,
-                mimetype: certificate.mimetype
+                type: file.type,
+                fileBuffer: file.buffer,
+                originalName: file.originalname,
+                mimetype: file.mimetype
             });
         }
         res.status(201).json({ message: 'Certificates added successfully' });
