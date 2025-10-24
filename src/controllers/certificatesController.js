@@ -23,6 +23,28 @@ exports.create = [
         }
     }
 ];
+
+exports.addMultiple =[ 
+    upload.fields([{ name: 'files' }]), 
+    async (req, res) => {
+    try {
+        const { files } = req.files;
+        const {type} = req.body;
+        const babysitterId = req.user._id;
+        for (const file of files) {
+            await createCertificate({
+                babysitterId,
+                type: certificate.type,
+                fileBuffer: certificate.fileBuffer,
+                originalName: certificate.originalName,
+                mimetype: certificate.mimetype
+            });
+        }
+        res.status(201).json({ message: 'Certificates added successfully' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+}]
 exports.getByBabysitter = async (req, res) =>{
     try {
         const { babysitterId } = req.params;
