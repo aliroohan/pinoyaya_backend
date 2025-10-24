@@ -16,5 +16,6 @@ exports.getByCustomer = async (customerId) => {
 }
 
 exports.deleteFavourite = async (id) => {
-    await favouriteModel.findByIdAndDelete(id);
+
+    await favouriteModel.findOneAndDelete({ babysitterId: id });
 }

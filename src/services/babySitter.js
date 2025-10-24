@@ -86,7 +86,7 @@ exports.getBabysittersByFilter = async ( radius, available, user) => {
         // Get all babysitter locations
         const babysitterLocations = await locationModel.find({ 
             babysitterId: { $exists: true, $ne: null } 
-        }).populate('babysitterId');
+        }).populate('babysitterId').select('-password');
 
         // Get all ongoing jobs to check babysitter availability
         const ongoingJobs = await jobModel.find({ status: 'ongoing' });
@@ -147,7 +147,7 @@ exports.getBabysittersByFilter = async ( radius, available, user) => {
     }
 };
 exports.updateBabysitter = async (id, data) => {
-    const babysitter = await babysitterModel.findByIdAndUpdate(id, data, { new: true });
+    const babysitter = await babysitterModel.findByIdAndUpdate(id, data, { new: true }).select('-password');
     return babysitter;
 };
 
@@ -157,6 +157,6 @@ exports.deleteBabysitter = async (id) => {
 };
 
 exports.verifyDocs = async (id) => {
-    const babysitter = await babysitterModel.findByIdAndUpdate(id, { idVerified: true }, { new: true });
+    const babysitter = await babysitterModel.findByIdAndUpdate(id, { idVerified: true }, { new: true }).select('-password');
     return babysitter;
 };
