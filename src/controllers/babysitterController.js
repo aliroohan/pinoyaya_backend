@@ -88,20 +88,20 @@ exports.resendEmail = async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 }
-exports.uploadImages = async (req, res) => {
+exports.uploadImages = [
+    upload.fields([{ name: 'photo' }, { name: 'front' }, { name: 'back' }]),
+    async (req, res) => {
     try {
-        const { photo, front, back } = req.body;
-
-        const babySitterId = req.user._id;
-        const photoUrl = await uploadImages(photo, babySitterId);
-        const frontImageUrl = await uploadImages(front, babySitterId);
-        const backImageUrl = await uploadImages(back, babySitterId);
-        const babysitter = await updateBabysitter(babySitterId, { photoUrl: photoUrl, verificationIdPhotoUrls: [frontImageUrl, backImageUrl] });
-        res.status(200).json({ status: "success", message: 'Images uploaded successfully', data: babysitter });
+        const babysitterId = req.user._id;
+        const photoUrl = await uploadImage(req.files.photo[0].buffer, req.files.photo[0].originalname, req.files.photo[0].mimetype);
+        const frontImageUrl = await uploadImage(req.files.front[0].buffer, req.files.front[0].originalname, req.files.front[0].mimetype);
+        const backImageUrl = await uploadImage(req.files.back[0].buffer, req.files.back[0].originalname, req.files.back[0].mimetype);
+        const babysitter = await updateBabysitter(babysitterId, { photoUrl: photoUrl, verificationIdPhotoUrls: [frontImageUrl, backImageUrl] });
+        res.status(200).json({ status: "success", data: babysitter });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
-}
+}];
 exports.resetPassword = async (req, res) => {
     const { email, password } = req.body;
     try {
