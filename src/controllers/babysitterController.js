@@ -2,6 +2,8 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { createBabysitter, getBabysitter, getBabysitterById, verifyEmail, updateBabysitter, getAllBabysitters, deleteBabysitter, verifyDocs: verifyDocsService, getBabysittersByFilter } = require('../services/babySitter');
 const { sendOtpEmail } = require('../services/mail');
+const multer = require('multer');
+const upload = multer();
 
 exports.signup = async (req, res) => {
     const { firstName, lastName, email, phone, password } = req.body;
