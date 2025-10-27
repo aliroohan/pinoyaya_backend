@@ -17,7 +17,7 @@ exports.getAllBabysitters = async () => {
 exports.createBabysitter = async (babysitterData) => {
     const babysitter = new babysitterModel(babysitterData);
     await babysitter.save();
-    const wallet = new Wallet({ babysitterId: babysitter._id });
+    const wallet = new walletModel({ babysitterId: babysitter._id });
     await wallet.save();
     return babysitter;
 };
