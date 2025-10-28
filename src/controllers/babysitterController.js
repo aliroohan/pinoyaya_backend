@@ -96,9 +96,15 @@ exports.uploadImages = [
     async (req, res) => {
     try {
         const babysitterId = req.user._id;
-        const photoUrl = await uploadImage(req.files.photo[0].buffer, req.files.photo[0].originalname, req.files.photo[0].mimetype);
-        const frontImageUrl = await uploadImage(req.files.front[0].buffer, req.files.front[0].originalname, req.files.front[0].mimetype);
-        const backImageUrl = await uploadImage(req.files.back[0].buffer, req.files.back[0].originalname, req.files.back[0].mimetype);
+        let frontImageUrl = null;
+        let backImageUrl = null;
+        if (req.files.front && req.files.back) {
+            frontImageUrl = await uploadImage(req.files.front[0].buffer, req.files.front[0].originalname, req.files.front[0].mimetype);
+            backImageUrl = await uploadImage(req.files.back[0].buffer, req.files.back[0].originalname, req.files.back[0].mimetype);
+        }
+        if (req.files.photo) {
+            photoUrl = await uploadImage(req.files.photo[0].buffer, req.files.photo[0].originalname, req.files.photo[0].mimetype);
+        }
         const babysitter = await updateBabysitter(babysitterId, { photoUrl: photoUrl, verificationIdPhotoUrls: [frontImageUrl, backImageUrl] });
         res.status(200).json({ status: "success", data: babysitter });
     } catch (err) {
