@@ -101,11 +101,18 @@ exports.uploadImages = [
     async (req, res) => {
     try {
         const customerId = req.user._id;
-        const photoUrl = await uploadImage(req.files.photo[0].buffer, req.files.photo[0].originalname, req.files.photo[0].mimetype);
-        const frontImageUrl = await uploadImage(req.files.front[0].buffer, req.files.front[0].originalname, req.files.front[0].mimetype);
-        const backImageUrl = await uploadImage(req.files.back[0].buffer, req.files.back[0].originalname, req.files.back[0].mimetype);
+        let frontImageUrl = null;
+        let backImageUrl = null;
+        let photoUrl = null;
+        if (req.files.front && req.files.back) {
+            frontImageUrl = await uploadImage(req.files.front[0].buffer, req.files.front[0].originalname, req.files.front[0].mimetype);
+            backImageUrl = await uploadImage(req.files.back[0].buffer, req.files.back[0].originalname, req.files.back[0].mimetype);
+        }
+        if (req.files.photo) {
+            photoUrl = await uploadImage(req.files.photo[0].buffer, req.files.photo[0].originalname, req.files.photo[0].mimetype);
+        }
         const customer = await updateCustomer(customerId, { photoUrl: photoUrl, verificationIdPhotoUrls: [frontImageUrl, backImageUrl] });
-        res.status(200).json({ message: 'Images uploaded successfully' });
+        res.status(200).json({ status: "success", data: customer });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
