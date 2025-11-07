@@ -3,7 +3,7 @@ const customerModel = require('../models/customer');
 exports.createCustomer = async (customerData) => {
 	const customer = new customerModel(customerData);
 	await customer.save();
-	const customerObj = customer.toObject();
+	const customerObj = customer.toJSON();
 	delete customerObj.password;
 	return customerObj;
 };
