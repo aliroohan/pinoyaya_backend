@@ -14,6 +14,7 @@ router.post('/forgetpassword', babysitterController.forgetPassword);
 router.post('/uploadimages', auth, babysitterController.uploadImages);
 router.get('/filter', auth, babysitterController.getBabysittersByFilter);
 router.get('/', auth, babysitterController.getAll);
+router.get('/:type', auth, babysitterController.getBabysittersByType);
 router.get('/:id', auth, babysitterController.getById);
 router.patch('/:id', auth, babysitterController.update);
 router.delete('/:id', auth, babysitterController.delete);

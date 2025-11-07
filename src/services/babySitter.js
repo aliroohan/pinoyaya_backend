@@ -146,6 +146,12 @@ exports.getBabysittersByFilter = async ( radius, available, user) => {
         throw new Error(`Error filtering babysitters: ${error.message}`);
     }
 };
+
+exports.getBabysittersByType = async (type) => {
+    const babysitters = await babysitterModel.find({ profession: type });
+    return babysitters;
+};
+
 exports.updateBabysitter = async (id, data) => {
     const babysitter = await babysitterModel.findByIdAndUpdate(id, data, { new: true }).select('-password');
     return babysitter;

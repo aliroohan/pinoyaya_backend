@@ -1,6 +1,6 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { createBabysitter, getBabysitter, getBabysitterById, verifyEmail, updateBabysitter, getAllBabysitters, deleteBabysitter, verifyDocs: verifyDocsService, getBabysittersByFilter } = require('../services/babySitter');
+const { createBabysitter, getBabysitter, getBabysitterById, verifyEmail, updateBabysitter, getAllBabysitters, deleteBabysitter, verifyDocs: verifyDocsService, getBabysittersByFilter, getBabysittersByType } = require('../services/babySitter');
 const { sendOtpEmail } = require('../services/mail');
 const { uploadImage } = require('../services/s3Service');
 const multer = require('multer');
@@ -146,6 +146,16 @@ exports.forgetPassword = async (req, res) => {
 exports.getAll = async (req, res) => {
     try {
         const babysitters = await getAllBabysitters();
+        res.status(200).json({status: "success", data: babysitters});
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+}
+
+exports.getBabysittersByType = async (req, res) => {
+    try {
+        const { type } = req.params;
+        const babysitters = await getBabysittersByType(type);
         res.status(200).json({status: "success", data: babysitters});
     } catch (err) {
         res.status(500).json({ message: err.message });
