@@ -24,8 +24,11 @@ exports.getByCustomer = async (req, res) => {
 exports.delete = async (req, res) => {
     try {
         const { id } = req.params;
-        await deleteFavourite(id);
-        res.status(204).json({ success: true, data: { message: 'Favourite deleted successfully' } });
+        const favourite = await deleteFavourite(id);
+        if (!favourite) {
+            return res.status(404).json({ message: 'Favourite not found' });
+        }
+        res.status(200).json({ success: true, data: { message: 'Favourite deleted successfully' } });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
