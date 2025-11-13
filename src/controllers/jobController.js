@@ -19,6 +19,15 @@ exports.getJobs = async (req, res) => {
   }
 };
 
+exports.getPostedJobs = async (req, res) => {
+  try {
+    const jobs = await jobService.getPostedJobs();
+    res.json(jobs);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 exports.getJobsByFilter = async (req, res) => {
   try {
     const { location, radius, available }  =  req.query;

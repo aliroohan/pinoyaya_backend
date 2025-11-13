@@ -6,6 +6,7 @@ const jobSchema = new mongoose.Schema({
     type: { type: String, required: true },
     title: { type: String, required: true },
     rate: { type: Number },
+    isFulltime: { type: Boolean, default: false },
     detail: { type: String },
     startDate: { type: Date },
     endDate: { type: Date },

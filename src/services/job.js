@@ -57,6 +57,10 @@ exports.getJobCountByBabysitterId = async (babysitterId) => {
   };
 };
 
+exports.getPostedJobs = async (customerId) => {
+  const jobs = await jobModel.find({isFulltime: true}).populate('babysitterId');
+  return jobs;
+};
 exports.getJobById = async (id) => {
   return await jobModel.findById(id).populate('customerId').populate('babysitterId').populate('childId').populate('location');
 };
