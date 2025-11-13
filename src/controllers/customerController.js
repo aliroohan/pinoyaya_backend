@@ -50,7 +50,7 @@ exports.signup = async (req, res) => {
             phone: customer.phone,
             firstName: customer.firstName,
             lastName: customer.lastName,
-            ...customer.toJSON()
+            ...customer
         };
         delete payload.password;
         const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '7d' });
