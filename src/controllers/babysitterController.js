@@ -60,7 +60,7 @@ exports.login = async (req, res) => {
             profession: babysitter.profession
         };
         const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '7d' });
-        res.json({ status: "success", data: { token, babysitter: payload } });
+        res.json({ status: "success", data: { token, babysitter: babysitter.toJSON() } });
     } catch (err) {
         res.status(500).json({ message: 'Server error' });
     }
