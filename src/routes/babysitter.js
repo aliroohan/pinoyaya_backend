@@ -7,7 +7,7 @@ const adminAuth = require('../middleware/adminAuth');
 router.post('/signup', babysitterController.signup);
 router.post('/login', babysitterController.login);
 router.patch('/profession', auth, babysitterController.updateProfession);
-router.post('/verify/email/:id', babysitterController.verifyEmail);
+router.post('/verify/email', babysitterController.verifyEmail);
 router.post('/resend/email', babysitterController.resendEmail);
 router.post('/resetpassword', babysitterController.resetPassword);
 router.post('/forgetpassword', babysitterController.forgetPassword);
