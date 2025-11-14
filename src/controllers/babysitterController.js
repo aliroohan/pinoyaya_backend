@@ -53,6 +53,9 @@ exports.login = async (req, res) => {
         if (!babysitter.emailVerified) {
             return res.status(401).json({ message: 'Email not verified' });
         }
+        const babysitterObj = babysitter.toJSON();
+        delete babysitterObj.password;
+        console.log('babysitterObj', babysitterObj);
         const payload = {
             id: babysitter._id,
             email: babysitter.email,
@@ -60,7 +63,7 @@ exports.login = async (req, res) => {
             profession: babysitter.profession
         };
         const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '7d' });
-        res.json({ status: "success", data: { token, babysitter: babysitter } });
+        res.json({ status: "success", data: { token, babysitter: babysitterObj } });
     } catch (err) {
         res.status(500).json({ message: 'Server error' });
     }

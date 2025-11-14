@@ -47,7 +47,8 @@ exports.getBabysitter = async (phone, email = null) => {
             { phone },
             { email }
         ]
-    }).select('-password');
+    });
+    
     return babysitter;
 };
 
