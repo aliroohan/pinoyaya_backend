@@ -4,7 +4,7 @@ const CustomerModel = require('../models/customer');
 const BabysitterModel = require('../models/babysitter');
 const { uploadImage } = require('../services/s3Service');
 
-const connectedUsers = new Map(); // Store connected users with their socket IDs
+const connectedUsers = new Map(); 
 
 const socketHandler = (io) => {
     io.use(async (socket, next) => {
@@ -39,8 +39,8 @@ const socketHandler = (io) => {
         // Handle private messages
         socket.on('send_message', async (data) => {
             try {
-                const { recipientId, content, messageType = 'text' } = data;
-                
+                const { recipientId, content, messageType = 'text', chatId } = data;
+                console.log(data);
                 if (!recipientId || !content) {
                     socket.emit('error', { message: 'Recipient ID and content are required' });
                     return;
@@ -54,14 +54,17 @@ const socketHandler = (io) => {
                     recipientRole: socket.userRole === 'customer' ? 'babysitter' : 'customer',
                     content: content,
                     messageType: messageType,
-                    timestamp: new Date()
+                    timestamp: new Date(),
+                    chatId: chatId
                 });
 
                 await message.save();
 
                 // Emit to recipient if online
+                
                 const recipientSocket = connectedUsers.get(recipientId);
                 if (recipientSocket) {
+                    console.log(recipientSocket);
                     io.to(recipientSocket.socketId).emit('receive_message', {
                         messageId: message._id,
                         senderId: socket.userId,
@@ -87,7 +90,7 @@ const socketHandler = (io) => {
         // Handle image messages
         socket.on('send_image', async (data) => {
             try {
-                const { recipientId, imageData, fileName, mimeType } = data;
+                const { recipientId, imageData, fileName, mimeType, chatId } = data;
                 
                 if (!recipientId || !imageData) {
                     socket.emit('error', { message: 'Recipient ID and image data are required' });
@@ -108,7 +111,8 @@ const socketHandler = (io) => {
                     recipientRole: socket.userRole === 'customer' ? 'babysitter' : 'customer',
                     content: imageUrl,
                     messageType: 'image',
-                    timestamp: new Date()
+                    timestamp: new Date(),
+                    chatId: chatId
                 });
 
                 await message.save();
@@ -122,7 +126,8 @@ const socketHandler = (io) => {
                         senderRole: socket.userRole,
                         content: imageUrl,
                         messageType: 'image',
-                        timestamp: message.timestamp
+                        timestamp: message.timestamp,
+                        chatId: chatId
                     });
                 }
 
@@ -130,7 +135,8 @@ const socketHandler = (io) => {
                 socket.emit('message_sent', {
                     messageId: message._id,
                     timestamp: message.timestamp,
-                    imageUrl: imageUrl
+                    imageUrl: imageUrl,
+                    chatId: chatId
                 });
 
             } catch (error) {

@@ -33,6 +33,14 @@ exports.getConversation = async (userId1, userId2, page = 1, limit = 50) => {
     }
 };
 
+exports.getConversationByChatId = async (chatId) => {
+    try {
+        const messages = await Message.find({ chatId: chatId }).sort({ timestamp: 1 });
+        return messages;
+    } catch (error) {
+        throw new Error(`Failed to get conversation by chat id: ${error.message}`);
+    }
+};
 exports.getUserConversations = async (userId, userRole) => {
     try {
         const conversations = await Message.aggregate([

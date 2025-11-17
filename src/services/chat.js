@@ -8,10 +8,10 @@ exports.createChat = async ({ customerId, babysitterId, user = null }) => {
 
 exports.getChatsById = async (user) => {
     if (user.type === "customer") {
-        const chats = await chatModel.find({ customerId: user.id });
+        const chats = await chatModel.find({ customerId: user.id }).populate("babysitterId").populate("lastMessageId").sort({ updatedAt: -1 });
         return chats;
     } else {
-        const chats = await chatModel.find({ babysitterId: user.id });
+        const chats = await chatModel.find({ babysitterId: user.id }).populate("customerId").populate("lastMessageId").sort({ updatedAt: -1 });
         return chats;
     }
 };

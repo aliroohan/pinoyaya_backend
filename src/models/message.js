@@ -6,6 +6,10 @@ const messageSchema = new mongoose.Schema({
         required: true,
         refPath: 'senderModel'
     },
+    chatId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Chat',
+    },
     senderRole: { 
         type: String, 
         required: true, 

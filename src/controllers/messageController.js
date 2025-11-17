@@ -18,6 +18,15 @@ const upload = multer({
     }
 });
 
+exports.getConversationByChatId = async (req, res) => {
+    try {
+        const { chatId } = req.params;
+        const messages = await messageService.getConversationByChatId(chatId);
+        res.status(200).json(messages);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
 exports.getConversations = async (req, res) => {
     try {
         const userId = req.user._id;
@@ -50,7 +59,7 @@ exports.getConversation = async (req, res) => {
 
 exports.sendMessage = async (req, res) => {
     try {
-        const { recipientId, content, messageType = 'text' } = req.body;
+        const { recipientId, content, messageType = 'text', chatId } = req.body;
         
         if (!recipientId) {
             return res.status(400).json({ message: 'Recipient ID is required' });
@@ -67,7 +76,8 @@ exports.sendMessage = async (req, res) => {
             recipientRole: req.user.profession ? 'customer' : 'babysitter',
             content: content,
             messageType: messageType,
-            timestamp: new Date()
+            timestamp: new Date(),
+            chatId: chatId
         };
 
         const message = await messageService.createMessage(messageData);
@@ -82,7 +92,8 @@ exports.sendMessage = async (req, res) => {
                     senderRole: messageData.senderRole,
                     content: content,
                     messageType: messageType,
-                    timestamp: message.timestamp
+                    timestamp: message.timestamp,
+                    chatId: chatId
                 });
             }
         }
@@ -98,7 +109,7 @@ exports.sendImageMessage = [
     upload.single('image'),
     async (req, res) => {
         try {
-            const { recipientId } = req.body;
+            const { recipientId, chatId } = req.body;
             
             if (!recipientId) {
                 return res.status(400).json({ message: 'Recipient ID is required' });
@@ -122,7 +133,8 @@ exports.sendImageMessage = [
                 recipientRole: req.user.profession ? 'customer' : 'babysitter',
                 content: imageUrl,
                 messageType: 'image',
-                timestamp: new Date()
+                timestamp: new Date(),
+                chatId: chatId
             };
 
             const message = await messageService.createMessage(messageData);
@@ -137,7 +149,8 @@ exports.sendImageMessage = [
                         senderRole: messageData.senderRole,
                         content: imageUrl,
                         messageType: 'image',
-                        timestamp: message.timestamp
+                        timestamp: message.timestamp,
+                        chatId: chatId
                     });
                 }
             }

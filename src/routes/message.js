@@ -4,7 +4,7 @@ const messageController = require('../controllers/messageController');
 const auth = require('../middleware/auth');
 
 router.get('/conversations', auth, messageController.getConversations); // Get all conversations for the authenticated user
-router.get('/conversation/:otherUserId', auth, messageController.getConversation); // Get conversation with a specific user
+router.get('/conversation/:chatId', auth, messageController.getConversationByChatId); // Get conversation by chat id
 router.post('/send', auth, messageController.sendMessage); // Send a text message
 router.post('/send-image', auth, messageController.sendImageMessage); // Send an image message
 router.patch('/read/:senderId', auth, messageController.markAsRead); // Mark messages as read from a specific sender
