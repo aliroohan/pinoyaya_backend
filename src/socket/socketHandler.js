@@ -179,6 +179,7 @@ const socketHandler = (io) => {
                 if (message) {
                     const senderSocket = connectedUsers.get(message.senderId);
                     if (senderSocket) {
+                        console.log(senderSocket);
                         io.to(senderSocket.socketId).emit('message_read', {
                             messageId: messageId,
                             readBy: socket.userId,
