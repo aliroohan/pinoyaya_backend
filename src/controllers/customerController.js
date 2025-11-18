@@ -182,7 +182,7 @@ exports.getById = async (req, res) => {
     if (!customer) {
         return res.status(400).json({ message: 'Customer not found' });
     }
-    res.status(200).json(customer);
+    res.status(200).json({status: "success", data: customer});
 }
 
 exports.update = async (req, res) => {
