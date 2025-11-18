@@ -1,4 +1,4 @@
-const { createCertificate } = require('../services/certificate');
+const { createCertificate, getCertificatesByBabysitter, deleteCertificate } = require('../services/certificate');
 const multer = require('multer');
 const upload = multer();
 
