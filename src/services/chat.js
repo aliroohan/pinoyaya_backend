@@ -1,6 +1,10 @@
 const chatModel = require("../models/chat");
 
 exports.createChat = async ({ customerId, babysitterId, user = null }) => {
+    const existingChat = await chatModel.findOne({ customerId, babysitterId });
+    if (existingChat) {
+        return existingChat;
+    }
     const chat = new chatModel({ customerId, babysitterId });
     await chat.save();
     return chat;
