@@ -1,4 +1,5 @@
 const jobModel = require('../models/job');
+const requestModel = require('../models/request');
 
 exports.createJob = async (data) => {
   const job = new jobModel(data);
@@ -10,10 +11,12 @@ exports.getJobs = async () => {
 };
 
 exports.getJobsByCustomerId = async (customerId) => {
+  let pending = [];
   let onGoing = [];
   let completed = [];
   let cancelled = [];
   let feedbackPending = [];
+  pending = await requestModel.find({ customerId: customerId, status: 'pending', createdby: 'babysitter' }).populate('jobId').populate('babysitterId');
   const jobs = await jobModel.find({ customerId: customerId }).populate('babysitterId');
   jobs.forEach(job => {
     if (job.status === 'ongoing') {
@@ -28,6 +31,7 @@ exports.getJobsByCustomerId = async (customerId) => {
     }
   });
   return {
+    pending,
     onGoing,
     completed,
     cancelled,
@@ -38,7 +42,28 @@ exports.getJobsByCustomerId = async (customerId) => {
 };
 
 exports.getJobsByBabysitterId = async (babysitterId) => {
-  return await jobModel.find({ babysitterId: babysitterId }).populate('customerId').populate('babysitterId').populate('childId').populate('location');
+  let pending = []
+  let onGoing = []
+  let completed = []
+  let cancelled = []
+  const jobs = await jobModel.find({ babysitterId: babysitterId }).populate('customerId').populate('babysitterId').populate('childId').populate('location');
+  pending = await requestModel.find({ babysitterId: babysitterId, status: 'pending', createdby: 'customer' }).populate('jobId').populate('customerId');
+  jobs.forEach(job => {
+    if (job.status === 'ongoing') {
+      onGoing.push(job);
+    } else if (job.status === 'completed') {
+      completed.push(job);
+    } else if (job.status === 'cancelled') {
+      cancelled.push(job);
+    }
+  });
+  return {
+    pending,
+    onGoing,
+    completed,
+    cancelled
+  };
+
 };
 
 exports.getJobCountByBabysitterId = async (babysitterId) => {
