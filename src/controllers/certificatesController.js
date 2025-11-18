@@ -17,7 +17,7 @@ exports.create = [
                 originalName: req.file.originalname,
                 mimetype: req.file.mimetype
             });
-            res.status(201).json(certificate);
+            res.status(201).json({status: "success", data: certificate});
         } catch (err) {
             res.status(500).json({ error: err.message });
         }
@@ -40,16 +40,18 @@ exports.addMultiple =[
         if (!type) {
             return res.status(400).json({ error: 'Certificate type is required' });
         }
+        const certificates = [];
         for (const file of files) {
-            await createCertificate({
+            certificates.push(await createCertificate({
                 babysitterId,
                 type: type,
-                fileBuffer: file.buffer,
-                originalName: file.originalname,
-                mimetype: file.mimetype
-            });
+                    fileBuffer: file.buffer,
+                    originalName: file.originalname,
+                    mimetype: file.mimetype
+                })
+            );
         }
-        res.status(201).json({ message: 'Certificates added successfully' });
+        res.status(201).json({status: "success", data: certificates});
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -58,7 +60,7 @@ exports.getByBabysitter = async (req, res) =>{
     try {
         const { babysitterId } = req.params;
         const certificates = await getCertificatesByBabysitter(babysitterId);
-        res.status(200).json(certificates);
+        res.status(200).json({status: "success", data: certificates});
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
