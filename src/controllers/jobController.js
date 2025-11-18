@@ -1,4 +1,5 @@
 const jobService = require('../services/job');
+const requestService = require('../services/request');
 
 exports.createJob = async (req, res) => {
   try {
@@ -18,6 +19,21 @@ exports.getJobs = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+
+exports.hireBabysitter = async (req, res) => {
+  try {
+    const customerId = req.user._id;
+    const job = await jobService.createJob({ ...req.body, customerId, status: "waiting" });
+    const request = await requestService.create({ jobId: job._id, customerId, babysitterId: req.body.babysitterId, status: "pending", createdby: "customer" }, req.user);
+    if (!job) return res.status(400).json({ error: 'Failed to create job' });
+    if (!request) return res.status(400).json({ error: 'Failed to create request' });
+    res.status(201).json({status: "success", data: { job, request }});
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 
 exports.getPostedJobs = async (req, res) => {
   try {

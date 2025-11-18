@@ -5,7 +5,8 @@ const requestSchema = new mongoose.Schema({
     status: { type: String, required: true, enum: ['pending', 'accepted', 'rejected'], default: 'pending' },
     dateTime: { type: Date, default: Date.now},
     customerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Customer', required: true },
-    babysitterId: { type: mongoose.Schema.Types.ObjectId, ref: 'Babysitter', required: true }
+    babysitterId: { type: mongoose.Schema.Types.ObjectId, ref: 'Babysitter', required: true },
+    createdby: { type: String, required: true, enum: ['customer', 'babysitter'] },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Request', requestSchema); 

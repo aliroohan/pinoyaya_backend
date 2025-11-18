@@ -7,6 +7,7 @@ router.post('/',auth, jobController.createJob);
 router.get('/', jobController.getJobs);
 router.get('/postedJobs', auth, jobController.getPostedJobs);
 router.get('/instantJobs', auth, jobController.getInstantJobs);
+router.post('/hire', auth, jobController.hireBabysitter);
 router.get('/customer/:customerId', auth, jobController.getJobsByCustomerId);
 router.get('/babysitter/:babysitterId', auth, jobController.getJobsByBabysitterId);
 router.get('/:id', auth, jobController.getJobById);
