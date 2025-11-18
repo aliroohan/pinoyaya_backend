@@ -14,7 +14,7 @@ const jobSchema = new mongoose.Schema({
     endTime: { type: String },
     status: {type: String, enum: ["available", "completed", "ongoing", "cancelled", "waiting"], default: "available"},
     experience: { type: String, enum: ['0-2', '3-5', '6+'] },
-    vaccination: { type: Boolean },
+    vaccination: { type: String, enum: ['yes', 'mandatory', 'na'] },
     liveIn: { type: Boolean },
     childId: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Child' }],
     location: { type: mongoose.Schema.Types.ObjectId, ref: 'Location' },
