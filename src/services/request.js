@@ -47,12 +47,11 @@ exports.babysitterRejectRequest = async (requestId) => {
 
 exports.customerAcceptRequest = async (requestId) => {
   const request = await requestModel.findByIdAndUpdate(requestId, { status: 'accepted' }, { new: true });
-  const job = await jobModel.findByIdAndUpdate(request.jobId, { status: 'ongoing' }, { new: true });
+  const job = await jobModel.findByIdAndUpdate(request.jobId, { status: 'ongoing', babysitterId: request.babysitterId }, { new: true });
   return { request, job };
 };
 
 exports.customerRejectRequest = async (requestId) => {
   const request = await requestModel.findByIdAndUpdate(requestId, { status: 'rejected' }, { new: true });
-  const job = await jobModel.findByIdAndUpdate(request.jobId, { status: 'cancelled' }, { new: true });
   return { request, job };
 };
