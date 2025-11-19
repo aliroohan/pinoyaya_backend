@@ -55,3 +55,47 @@ exports.delete = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 }; 
+
+exports.babysitterAcceptRequest = async (req, res) => {
+  try {
+    const { requestId } = req.body;
+    const request = await requestService.babysitterAcceptRequest(requestId);
+    if (!request) return res.status(404).json({ error: 'Request not found' });
+    res.json({ status: "success", data: request });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.babysitterRejectRequest = async (req, res) => {
+  try {
+    const { requestId } = req.body;
+    const request = await requestService.babysitterRejectRequest(requestId);
+    if (!request) return res.status(404).json({ error: 'Request not found' });
+    res.json({ status: "success", data: request });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.customerAcceptRequest = async (req, res) => {
+  try {
+    const { requestId } = req.body;
+    const request = await requestService.customerAcceptRequest(requestId);
+    if (!request) return res.status(404).json({ error: 'Request not found' });
+    res.json({ status: "success", data: request });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.customerRejectRequest = async (req, res) => {
+  try {
+    const { requestId } = req.body;
+    const request = await requestService.customerRejectRequest(requestId);
+    if (!request) return res.status(404).json({ error: 'Request not found' });
+    res.json({ status: "success", data: request });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
