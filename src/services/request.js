@@ -65,3 +65,7 @@ exports.customerRejectRequest = async (requestId) => {
   const request = await requestModel.findByIdAndUpdate(requestId, { status: 'rejected' }, { new: true });
   return { request, job };
 };
+
+exports.getById = async (id) => {
+  return await requestModel.findById(id).populate('jobId').populate('customerId').populate('babysitterId');
+};

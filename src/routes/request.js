@@ -5,6 +5,7 @@ const auth = require('../middleware/auth');
 
 router.post('/', auth, requestController.create);
 router.get('/job/:jobId', auth, requestController.getByJob);
+router.get('/:id', auth, requestController.getById);
 router.post('/babysitter/accept', auth, requestController.babysitterAcceptRequest);
 router.post('/babysitter/reject', auth, requestController.babysitterRejectRequest);
 router.post('/customer/accept', auth, requestController.customerAcceptRequest);
