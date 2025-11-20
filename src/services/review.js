@@ -11,7 +11,7 @@ exports.create = async (data) => {
 };
 
 exports.getByBabysitter = async (babysitterId) => {
-  return await reviewModel.find({ babysitterId: babysitterId });
+  return await reviewModel.find({ babysitterId: babysitterId }).populate('customerId');
 };
 
 exports.getAverageRatingByBabysitter = async (babysitterId) => {

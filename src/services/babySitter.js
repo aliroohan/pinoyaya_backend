@@ -30,7 +30,7 @@ exports.getBabysitterById = async (id) => {
     }
     
     const jobCount = await jobService.getJobCountByBabysitterId(id);
-    const reviews = await reviewService.getByBabysitter(id).populate('customerId');
+    const reviews = await reviewService.getByBabysitter(id);
     
     // Convert Mongoose document to plain object and add extra properties
     const babysitterObj = babysitter.toObject();
