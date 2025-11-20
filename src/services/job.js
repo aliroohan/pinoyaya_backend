@@ -102,4 +102,8 @@ exports.updateJob = async (id, data) => {
 
 exports.deleteJob = async (id) => {
   return await jobModel.findByIdAndDelete(id);
+};
+
+exports.completeJob = async (id) => {
+  return await jobModel.findByIdAndUpdate(id, { status: 'completed' }, { new: true });
 }; 

@@ -10,6 +10,7 @@ router.get('/instantJobs', auth, jobController.getInstantJobs);
 router.post('/hire', auth, jobController.hireBabysitter);
 router.get('/customer/:customerId', auth, jobController.getJobsByCustomerId);
 router.get('/babysitter/:babysitterId', auth, jobController.getJobsByBabysitterId);
+router.post('/:id/complete', auth, jobController.completeJob);
 router.get('/:id', auth, jobController.getJobById);
 router.patch('/:id', auth, jobController.updateJob);
 router.delete('/:id', auth, jobController.deleteJob);

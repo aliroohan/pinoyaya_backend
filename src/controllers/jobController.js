@@ -108,4 +108,14 @@ exports.deleteJob = async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+};
+
+exports.completeJob = async (req, res) => {
+  try {
+    const job = await jobService.completeJob(req.params.id);
+    if (!job) return res.status(404).json({ error: 'Job not found' });
+    res.json({ status: "success", message: 'Job completed successfully', data: job });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 }; 
