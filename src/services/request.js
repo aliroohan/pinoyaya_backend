@@ -9,6 +9,16 @@ exports.create = async (data, user) => {
     data.babysitterId = user.id;
     data.createdby = 'babysitter';
   }
+  if (data.jobId) {
+    const job = await jobModel.findById(data.jobId);
+    if (!job) {
+      throw new Error('Job not found');
+    }
+    const request = await requestModel.findOne({ jobId: data.jobId, customerId: data.customerId, babysitterId: data.babysitterId });
+    if (request) {
+      throw new Error('Request already exists for this job');
+    }
+  }
   const request = new requestModel(data);
   return await request.save();
 };
