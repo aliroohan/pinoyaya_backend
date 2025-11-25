@@ -30,13 +30,15 @@ exports.createAdmin = async (req, res) => {
     try {
         const { name, email, phone, password, role } = req.body;
         
-        if (!name || !email || !phone || !password || !role) {
+        if (!name || !email || !role) {
             return res.status(400).json({ error: 'All fields are required' });
         }
         if (role !== "reports" && role !== "financials" && role !== "jobReviewer") {
             return res.status(400).json({ error: 'Invalid role' });
         }
         const admin = await adminService.createAdmin({ name, email, phone, password, role });
+
+        await sendPasswordSettingMail(admin.email, admin._id, admin.name);
         res.status(201).json({
             success: true,
             message: 'Admin created successfully',
