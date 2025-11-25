@@ -12,6 +12,7 @@ router.use('/notification', require('./notification'));
 router.use('/favourites', require('./favourites'));
 router.use('/job', require('./job'));
 router.use('/request', require('./request'));
+router.use('/reports', require('./reports'));
 router.use('/review', require('./review'));
 router.use('/payments', require('./payments'));
 router.use('/bankaccount', require('./bankaccount'));
