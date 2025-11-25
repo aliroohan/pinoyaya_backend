@@ -14,7 +14,8 @@ const customerSchema = new mongoose.Schema({
     description: { type: String },
     availableChats: { type: Number, default: 0 },
     idVerified: { type: Boolean, default: false },
-    isOnline: { type: Boolean, default: false }
+    isOnline: { type: Boolean, default: false },
+    isBlocked: { type: Boolean, default: false },
 }, { timestamps: true });
 
 customerSchema.pre('save', function(next) {
