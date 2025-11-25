@@ -1,4 +1,5 @@
 const adminService = require('../services/admin');
+const jwt = require('jsonwebtoken');
 
 // Admin login
 exports.login = async (req, res) => {
@@ -10,11 +11,14 @@ exports.login = async (req, res) => {
         }
         
         const result = await adminService.login(email, password);
+        const token = jwt.sign({ id: result._id }, process.env.JWT_SECRET);
         
         res.json({
             success: true,
             message: 'Admin login successful',
-            ...result
+            token:token,
+            data:result,
+            role: result.role
         });
     } catch (err) {
         res.status(401).json({ error: err.message });
@@ -24,18 +28,19 @@ exports.login = async (req, res) => {
 // Create new admin (requires admin authentication)
 exports.createAdmin = async (req, res) => {
     try {
-        const { name, email, phone, password } = req.body;
+        const { name, email, phone, password, role } = req.body;
         
-        if (!name || !email || !phone || !password) {
+        if (!name || !email || !phone || !password || !role) {
             return res.status(400).json({ error: 'All fields are required' });
         }
-        
-        const admin = await adminService.createAdmin({ name, email, phone, password });
-        
+        if (role !== "reports" && role !== "financials" && role !== "jobReviewer" && role !== "admin") {
+            return res.status(400).json({ error: 'Invalid role' });
+        }
+        const admin = await adminService.createAdmin({ name, email, phone, password, role });
         res.status(201).json({
             success: true,
             message: 'Admin created successfully',
-            admin
+            data: admin,
         });
     } catch (err) {
         res.status(400).json({ error: err.message });
@@ -49,7 +54,7 @@ exports.getProfile = async (req, res) => {
         
         res.json({
             success: true,
-            admin
+            data:admin
         });
     } catch (err) {
         res.status(404).json({ error: err.message });
@@ -63,7 +68,7 @@ exports.getAllAdmins = async (req, res) => {
         
         res.json({
             success: true,
-            admins,
+            data:admins,
             count: admins.length
         });
     } catch (err) {
@@ -78,7 +83,7 @@ exports.getAdminById = async (req, res) => {
         
         res.json({
             success: true,
-            admin
+            data:admin
         });
     } catch (err) {
         res.status(404).json({ error: err.message });
@@ -100,7 +105,7 @@ exports.updateAdmin = async (req, res) => {
         res.json({
             success: true,
             message: 'Admin updated successfully',
-            admin
+            data:admin
         });
     } catch (err) {
         res.status(400).json({ error: err.message });
