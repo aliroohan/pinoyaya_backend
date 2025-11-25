@@ -24,7 +24,17 @@ const reportsSchema = new mongoose.Schema({
         type: String,
         enum: ["customer", "babysitter"],
         required: true,
-    }    
+    },
+    reported: {
+        type: mongoose.Schema.Types.ObjectId,
+        refPath: "reportedModel",
+        required: true,
+    },
+    reportedRole: {
+        type: String,
+        enum: ["customer", "babysitter"],
+        required: true,
+    },
 }, {
     timestamps: true,
 }   
@@ -32,6 +42,10 @@ const reportsSchema = new mongoose.Schema({
 
 reportsSchema.virtual("reporterModel").get(function() {
     return this.reporterRole === "customer" ? "Customer" : "Babysitter";
+});
+
+reportsSchema.virtual("reportedModel").get(function() {
+    return this.reportedRole === "customer" ? "Customer" : "Babysitter";
 });
 
 
