@@ -39,8 +39,8 @@ const socketHandler = require('./socket/socketHandler');
 socketHandler(io);
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+server.listen(PORT, "0.0.0.0", () => {
+    console.log()
 });
 
 module.exports = server;

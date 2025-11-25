@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const Message = require('../models/message');
 const CustomerModel = require('../models/customer');
 const BabysitterModel = require('../models/babysitter');
+const Chat = require('../models/chat');
 const { uploadImage } = require('../services/s3Service');
 
 const connectedUsers = new Map(); 
@@ -23,7 +24,7 @@ const socketHandler = (io) => {
         }
     });
 
-    io.on('connection', (socket) => {
+    io.on('connection', async (socket) => {
         console.log(`User connected: ${socket.userId} (${socket.userRole})`);
         
         // Store user connection
@@ -32,6 +33,11 @@ const socketHandler = (io) => {
             role: socket.userRole,
             userId: socket.userId
         });
+        if (socket.userRole === 'customer') {
+            await CustomerModel.findByIdAndUpdate(socket.userId, {isOnline: true})   
+        } else {
+            await BabysitterModel.findByIdAndUpdate(socket.userId, {isOnline: true})
+        }
 
         // Join user to their personal room
         socket.join(socket.userId);
@@ -40,7 +46,6 @@ const socketHandler = (io) => {
         socket.on('send_message', async (data) => {
             try {
                 const { recipientId, content, messageType = 'text', chatId } = data;
-                console.log(data);
                 if (!recipientId || !content) {
                     socket.emit('error', { message: 'Recipient ID and content are required' });
                     return;
@@ -59,12 +64,12 @@ const socketHandler = (io) => {
                 });
 
                 await message.save();
-
+                const chat = await Chat.findByIdAndUpdate(chatId, {lastMessageId: message._id});
+                const lastMessage = await Message.findById(message._id).populate('senderId', 'firstName lastName');
                 // Emit to recipient if online
                 
                 const recipientSocket = connectedUsers.get(recipientId);
                 if (recipientSocket) {
-                    console.log(recipientSocket);
                     io.to(recipientSocket.socketId).emit('receive_message', {
                         messageId: message._id,
                         senderId: socket.userId,
@@ -73,6 +78,15 @@ const socketHandler = (io) => {
                         messageType: messageType,
                         timestamp: message.timestamp
                     });
+
+                    io.to(recipientSocket.socketId).emit('notification', {
+                        chatId: chatId,
+                        senderId: socket.userId,
+                        name: lastMessage.senderId.firstName + ' ' + lastMessage.senderId.lastName,
+                        content: content,
+                        messageType: messageType,
+                        timestamp: message.timestamp                        
+                    })
                 }
 
                 // Emit back to sender for confirmation
@@ -96,7 +110,7 @@ const socketHandler = (io) => {
                     socket.emit('error', { message: 'Recipient ID and image data are required' });
                     return;
                 }
-
+                console.log(data)
                 // Convert base64 to buffer
                 const buffer = Buffer.from(imageData.split(',')[1], 'base64');
                 
@@ -171,17 +185,25 @@ const socketHandler = (io) => {
         // Handle read receipts
         socket.on('mark_read', async (data) => {
             try {
+                console.log(data);
                 const { messageId } = data;
-                await Message.findByIdAndUpdate(messageId, { isRead: true });
+                let message;
+                if (messageId) {
+                    message = await Message.findByIdAndUpdate(messageId, { isRead: true });
+                }
                 
+
                 // Notify sender that message was read
-                const message = await Message.findById(messageId);
-                if (message) {
-                    const senderSocket = connectedUsers.get(message.senderId);
+                
+                const chat = await Message.find({ chatId: message.chatId });
+                
+                if (chat) {
+                    const senderSocket = connectedUsers.get(message.senderId.toString());
                     if (senderSocket) {
-                        console.log(senderSocket);
                         io.to(senderSocket.socketId).emit('message_read', {
                             messageId: messageId,
+                            senderId: message.senderId,
+                            chat: chat,
                             readBy: socket.userId,
                             readAt: new Date()
                         });
@@ -189,6 +211,27 @@ const socketHandler = (io) => {
                 }
             } catch (error) {
                 console.error('Error marking message as read:', error);
+            }
+        });
+
+        socket.on('mark_read_complete_chat', async (data) => {
+            try {
+                const { chatId } = data;
+                console.log(chatId)
+                await Message.updateMany({ chatId, senderId: data.otherUserId }, { isRead: true });
+                const chat = await Message.find({ chatId: chatId });
+                
+                const senderSocket = connectedUsers.get(data.otherUserId.toString());
+                if (senderSocket) {
+                    io.to(senderSocket.socketId).emit('message_read_complete_chat', {
+                        chatId: chatId,
+                        readBy: socket.userId,
+                        chat: chat,
+                        readAt: new Date()
+                    });
+                }
+            } catch (error) {
+                console.error('Error marking chat as read:', error);
             }
         });
 

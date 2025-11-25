@@ -109,6 +109,7 @@ exports.sendImageMessage = [
     upload.single('image'),
     async (req, res) => {
         try {
+            console.log(req.body)
             const { recipientId, chatId } = req.body;
             
             if (!recipientId) {
@@ -136,13 +137,14 @@ exports.sendImageMessage = [
                 timestamp: new Date(),
                 chatId: chatId
             };
-
+            console.log(messageData)
             const message = await messageService.createMessage(messageData);
-
+            console.log(message)
             // Emit to recipient if online via Socket.IO
             if (global.io) {
                 const recipientSocket = global.getOnlineUsers().find(user => user.userId === recipientId);
                 if (recipientSocket) {
+                    
                     global.io.to(recipientSocket.socketId).emit('receive_message', {
                         messageId: message._id,
                         senderId: req.user._id,
