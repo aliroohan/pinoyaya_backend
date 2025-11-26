@@ -1,7 +1,6 @@
 const jwt = require('jsonwebtoken');
-const Admin = require('../models/admin');
 
-const adminAuth = async (req, res, next) => {
+module.exports = function (req, res, next) {
     try {
         // Get token from header
         const token = req.header('Authorization')?.replace('Bearer ', '');
@@ -14,19 +13,10 @@ const adminAuth = async (req, res, next) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         
         // Find admin by id
-        const admin = await Admin.findById(decoded.id).select('-password');
-        
-        if (!admin) {
-            return res.status(401).json({ error: 'Access denied. Invalid token.' });
-        }
-
-        // Add admin to request object
-        req.admin = admin;
+        req.admin = decoded.id;
         next();
         
     } catch (error) {
         res.status(401).json({ error: 'Access denied. Invalid token.' });
     }
 };
-
-module.exports = adminAuth; 

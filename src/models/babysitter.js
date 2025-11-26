@@ -17,6 +17,7 @@ const babysitterSchema = new mongoose.Schema({
     experience: { type: String },
     skills: [{ type: String }],
     isOnline: { type: Boolean, default: false },
+    isBlocked: {type: Boolean, default: false},
     totalEarnings: { type: Number, default: 0 }
 }, { timestamps: true });
 
