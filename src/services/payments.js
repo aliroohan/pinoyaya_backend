@@ -10,19 +10,62 @@ exports.create = async (data) => {
 };
 
 exports.getByCustomer = async (customerId) => {
-  return await paymentModel.find({ customer: customerId });
+  return await paymentModel.find({ customerId: customerId });
 };
 
 exports.getByJob = async (jobId) => {
-  return await paymentModel.find({ job: jobId });
+  return await paymentModel.find({ jobId: jobId });
+};
+
+// Create payment automatically when job is completed
+exports.createPaymentFromJob = async (job) => {
+  try {
+    // Check if payment already exists for this job
+    const existingPayment = await paymentModel.findOne({ jobId: job._id });
+    if (existingPayment) {
+      return existingPayment; // Return existing payment to avoid duplicates
+    }
+
+    // Validate required fields
+    if (!job.babysitterId || !job.customerId || !job.price) {
+      throw new Error('Job must have babysitterId, customerId, and price to create payment');
+    }
+
+    // Calculate payment breakdown
+    const basePrice = job.price - (job.platformFee || 0); // Base price without platform fee
+    const serviceCharges = job.platformFee || 0; // Platform service fee
+    const transportCharges = 0; // Can be calculated based on location if needed
+    const vatRate = 0.12; // 12% VAT (adjust as needed)
+    const vat = (basePrice + serviceCharges + transportCharges) * vatRate;
+    const total = basePrice + serviceCharges + transportCharges + vat;
+
+    // Create payment record
+    const paymentData = {
+      transportCharges: transportCharges,
+      serviceCharges: serviceCharges,
+      vat: vat,
+      price: basePrice,
+      total: total,
+      babysitterId: job.babysitterId,
+      customerId: job.customerId,
+      jobId: job._id,
+      isPaid: false
+    };
+
+    const payment = await this.create(paymentData);
+    return payment;
+  } catch (error) {
+    console.error('Error creating payment from job:', error);
+    throw error;
+  }
 };
 
 exports.update = async (id, data) => {
    const payment = await paymentModel.findById(id);
     if (data.isPaid) {
-      let wallet = await walletModel.findOne({ babysitter: payment.babysitter });
+      let wallet = await walletModel.findOne({ babysitterId: payment.babysitterId });
       if (!wallet) {
-        wallet = await walletModel.create({ babysitter: payment.babysitter, balance: 0 });
+        wallet = await walletModel.create({ babysitterId: payment.babysitterId, balance: 0 });
       }
       wallet.balance += payment.total;
       await wallet.save();
@@ -128,9 +171,9 @@ exports.makePayment = async (paymentData) => {
       await payment.save();
 
       // Update babysitter wallet
-      let wallet = await walletModel.findOne({ babysitter: babysitterId });
+      let wallet = await walletModel.findOne({ babysitterId: babysitterId });
       if (!wallet) {
-        wallet = new walletModel({ babysitter: babysitterId, balance: 0 });
+        wallet = new walletModel({ babysitterId: babysitterId, balance: 0 });
       }
       wallet.balance += amount;
       await wallet.save();

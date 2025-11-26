@@ -60,6 +60,7 @@ jobSchema.pre('save', async function(next) {
         if(this.isModified('status') && this.status === 'completed' && this.price) {
             const Customer = mongoose.model('Customer');
             const Babysitter = mongoose.model('Babysitter');
+            const paymentsService = require('../services/payments');
 
             // Update customer's total spending
             await Customer.findByIdAndUpdate(
@@ -73,6 +74,16 @@ jobSchema.pre('save', async function(next) {
                     this.babysitterId,
                     { $inc: { totalEarnings: this.babysitterEarning } }
                 );
+            }
+
+            // Create payment automatically when job is completed
+            if(this.babysitterId && this.customerId) {
+                try {
+                    await paymentsService.createPaymentFromJob(this);
+                } catch (error) {
+                    console.error('Error creating payment for completed job:', error);
+                    // Don't fail the job save if payment creation fails
+                }
             }
         }
 
