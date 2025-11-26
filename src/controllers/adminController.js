@@ -1,4 +1,5 @@
 const adminService = require('../services/admin');
+const mailService = require('../services/mail');
 const jwt = require('jsonwebtoken');
 
 // Admin login
@@ -28,7 +29,8 @@ exports.login = async (req, res) => {
 // Create new admin (requires admin authentication)
 exports.createAdmin = async (req, res) => {
     try {
-        const { name, email, phone, password, role } = req.body;
+        console.log(req.body);
+        const { name, email, role } = req.body;
         
         if (!name || !email || !role) {
             return res.status(400).json({ error: 'All fields are required' });
@@ -36,9 +38,10 @@ exports.createAdmin = async (req, res) => {
         if (role !== "reports" && role !== "financials" && role !== "jobReviewer") {
             return res.status(400).json({ error: 'Invalid role' });
         }
-        const admin = await adminService.createAdmin({ name, email, phone, password, role });
-
-        await sendPasswordSettingMail(admin.email, admin._id, admin.name);
+        const admin = await adminService.createAdmin({ name, email, role });
+        console.log(admin);
+        const mailResponse = await mailService.sendPasswordSettingMail(admin.email, admin._id, admin.name);
+        console.log(mailResponse);
         res.status(201).json({
             success: true,
             message: 'Admin created successfully',
@@ -147,3 +150,22 @@ exports.changePassword = async (req, res) => {
         res.status(400).json({ error: err.message });
     }
 }; 
+
+exports.setPassword = async (req, res) => {
+    try {
+        const { id, password } = req.body;
+        
+        if (!password) {
+            return res.status(400).json({ error: 'Password is required' });
+        }
+        
+        await adminService.setPassword(id, password);
+        
+        res.json({
+            success: true,
+            message: 'Password set successfully'
+        });
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
+};

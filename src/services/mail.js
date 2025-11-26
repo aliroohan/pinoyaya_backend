@@ -1,4 +1,6 @@
 const nodemailer = require("nodemailer");
+const dotenv = require("dotenv");
+dotenv.config();
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -44,7 +46,7 @@ const sendOtpEmail = async (to, code, name = "") => {
 const sendPasswordSettingMail = async (to, id, name = "") => {
   const subject = "Set your password";
   const displayName = name ? name : "there";
-  const link = `http://localhost:5173/set-password/${id}`;
+  const link = `${process.env.ADMIN_FRONTEND_URL}/set-password/${id}`;
   const html = `
     <div style="font-family:Arial,Helvetica,sans-serif;max-width:520px;margin:auto;padding:24px;border:1px solid #eee;border-radius:8px">
       <h2 style="margin:0 0 12px 0;color:#111">Set your password</h2>
@@ -57,7 +59,7 @@ const sendPasswordSettingMail = async (to, id, name = "") => {
       <p style="margin:16px 0 0 0;color:#999;font-size:12px">Pinoyaya</p>
     </div>
   `;
-  await sendEmail(to, subject, html);
+  return await sendEmail(to, subject, html);
 };
 
 module.exports = { sendEmail, sendOtpEmail, sendPasswordSettingMail };

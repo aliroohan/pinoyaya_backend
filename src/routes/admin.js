@@ -11,6 +11,7 @@ router.get('/', adminAuth, adminController.getAllAdmins);
 router.get('/:id', adminAuth, adminController.getAdminById);
 router.patch('/:id', adminAuth, adminController.updateAdmin);
 router.delete('/:id', adminAuth, adminController.deleteAdmin);
-router.patch('/change-password', adminAuth, adminController.changePassword);
+router.patch('/change-password', adminController.changePassword);
+router.patch('/set-password', adminController.setPassword);
 
 module.exports = router; 

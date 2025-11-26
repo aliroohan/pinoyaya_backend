@@ -24,11 +24,16 @@ const jobSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 jobSchema.pre('save', function(next) {
+
     if(this.startTime && this.endTime) {
         const days = ((this.endDate - this.startDate) / (1000 * 60 * 60 * 24)) + 1;
         const startTime = new Date(`1970-01-01T${this.startTime}`);
         const endTime = new Date(`1970-01-01T${this.endTime}`);
         this.totalHours = (endTime - startTime) / (1000 * 60 * 60) * days;
+        this.price = this.totalHours * this.rate;
+    }
+
+    if(this.isFulltime) {
         this.price = this.totalHours * this.rate;
     }
     next();

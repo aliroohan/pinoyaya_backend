@@ -221,7 +221,7 @@ const socketHandler = (io) => {
                 await Message.updateMany({ chatId, senderId: data.otherUserId }, { isRead: true });
                 const chat = await Message.find({ chatId: chatId });
                 
-                const senderSocket = connectedUsers.get(data.otherUserId.toString());
+                const senderSocket = connectedUsers.get(data.otherUserId);
                 if (senderSocket) {
                     io.to(senderSocket.socketId).emit('message_read_complete_chat', {
                         chatId: chatId,
