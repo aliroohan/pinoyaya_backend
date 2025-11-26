@@ -16,6 +16,7 @@ const customerSchema = new mongoose.Schema({
     idVerified: { type: Boolean, default: false },
     isOnline: { type: Boolean, default: false },
     isBlocked: { type: Boolean, default: false },
+    totalSpending: { type: Number, default: 0 },
 }, { timestamps: true });
 
 customerSchema.pre('save', function(next) {

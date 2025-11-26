@@ -20,23 +20,66 @@ const jobSchema = new mongoose.Schema({
     location: { type: mongoose.Schema.Types.ObjectId, ref: 'Location' },
     totalHours: { type: Number },
     price: { type: Number },
-    reviewed: { type: Boolean, default: false }
+    reviewed: { type: Boolean, default: false },
+    platformFee: { type: Number, default: 100 }, // Platform service fee
+    babysitterEarning: { type: Number }, // Amount babysitter earns (price - platformFee)
 }, { timestamps: true });
 
-jobSchema.pre('save', function(next) {
+jobSchema.pre('save', async function(next) {
+    try {
+        // For fulltime jobs - update dates and calculate based on actual work period
+        if(this.isFulltime) {
+            // When status changes to 'ongoing', set startDate to now
+            if(this.isModified('status') && this.status === 'ongoing' && !this.startDate) {
+                this.startDate = new Date();
+            }
+            
+            // When status changes to 'completed', set endDate to now and calculate price
+            if(this.isModified('status') && this.status === 'completed' && this.startDate) {
+                this.endDate = new Date();
+                // Calculate days between start and end
+                const days = Math.ceil((this.endDate - this.startDate) / (1000 * 60 * 60 * 24));
+                // 8 hours per day for fulltime
+                this.totalHours = days * 8;
+                this.price = (this.totalHours * this.rate) + this.platformFee;
+                this.babysitterEarning = this.price - this.platformFee;
+            }
+        }
+        
+        // For part-time jobs with specific time slots
+        if(!this.isFulltime && this.startTime && this.endTime && this.startDate && this.endDate) {
+            const days = ((this.endDate - this.startDate) / (1000 * 60 * 60 * 24)) + 1;
+            const startTime = new Date(`1970-01-01T${this.startTime}`);
+            const endTime = new Date(`1970-01-01T${this.endTime}`);
+            this.totalHours = (endTime - startTime) / (1000 * 60 * 60) * days;
+            this.price = (this.totalHours * this.rate) + this.platformFee;
+            this.babysitterEarning = this.price - this.platformFee;
+        }
 
-    if(this.startTime && this.endTime) {
-        const days = ((this.endDate - this.startDate) / (1000 * 60 * 60 * 24)) + 1;
-        const startTime = new Date(`1970-01-01T${this.startTime}`);
-        const endTime = new Date(`1970-01-01T${this.endTime}`);
-        this.totalHours = (endTime - startTime) / (1000 * 60 * 60) * days;
-        this.price = this.totalHours * this.rate;
-    }
+        // Update customer spending and babysitter earnings when job is completed
+        if(this.isModified('status') && this.status === 'completed' && this.price) {
+            const Customer = mongoose.model('Customer');
+            const Babysitter = mongoose.model('Babysitter');
 
-    if(this.isFulltime) {
-        this.price = this.totalHours * this.rate;
+            // Update customer's total spending
+            await Customer.findByIdAndUpdate(
+                this.customerId,
+                { $inc: { totalSpending: this.price } }
+            );
+
+            // Update babysitter's total earnings
+            if(this.babysitterId) {
+                await Babysitter.findByIdAndUpdate(
+                    this.babysitterId,
+                    { $inc: { totalEarnings: this.babysitterEarning } }
+                );
+            }
+        }
+
+        next();
+    } catch(error) {
+        next(error);
     }
-    next();
 });
 
 module.exports = mongoose.model('Job', jobSchema); 

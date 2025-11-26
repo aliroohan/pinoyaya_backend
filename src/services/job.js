@@ -97,7 +97,11 @@ exports.getJobById = async (id) => {
 };
 
 exports.updateJob = async (id, data) => {
-  return await jobModel.findByIdAndUpdate(id, data, { new: true });
+  const job = await jobModel.findById(id);
+  if (!job) return null;
+  Object.assign(job, data);
+  await job.save();
+  return job;
 };
 
 exports.deleteJob = async (id) => {
@@ -105,5 +109,9 @@ exports.deleteJob = async (id) => {
 };
 
 exports.completeJob = async (id) => {
-  return await jobModel.findByIdAndUpdate(id, { status: 'completed' }, { new: true });
+  const job = await jobModel.findById(id);
+  if (!job) return null;
+  job.status = 'completed';
+  await job.save();
+  return job;
 }; 
