@@ -171,18 +171,18 @@ exports.forgetPassword = async (req, res) => {
 exports.getAll = async (req, res) => {
     try {
         const customers = await getAllCustomers();
-        res.status(200).json(customers);
+        res.status(200).json({success: true, data: customers});
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        res.status(500).json({ success: false, message: err.message });
     }
 }
 exports.getById = async (req, res) => {
     const { id } = req.params;
     const customer = await getCustomerById(id);
     if (!customer) {
-        return res.status(400).json({ message: 'Customer not found' });
+        return res.status(400).json({ success: false, message: 'Customer not found' });
     }
-    res.status(200).json({status: "success", data: customer});
+    res.status(200).json({success: true, data: customer});
 }
 
 exports.update = async (req, res) => {
