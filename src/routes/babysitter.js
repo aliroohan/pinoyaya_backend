@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const babysitterController = require('../controllers/babysitterController');
 const auth = require('../middleware/auth');
-const adminAuth = require('../middleware/adminAuth');
+const {adminAuth} = require('../middleware/adminAuth');
 
 router.post('/signup', babysitterController.signup);
 router.post('/login', babysitterController.login);

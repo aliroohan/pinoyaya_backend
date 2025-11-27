@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const customerController = require('../controllers/customerController');
 const auth = require('../middleware/auth');
-const adminAuth = require('../middleware/adminAuth');
+const {adminAuth} = require('../middleware/adminAuth');
 
 router.post('/login', customerController.login);
 router.post('/signup', customerController.signup);
