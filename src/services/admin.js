@@ -64,7 +64,8 @@ exports.getAdminById = async (id) => {
 
 // Get all admins
 exports.getAllAdmins = async () => {
-    return await Admin.find().select('-password');
+    let admins = await Admin.find({role: {$ne: "admin"}}).select('-password');
+    return admins;
 };
 
 // Update admin
