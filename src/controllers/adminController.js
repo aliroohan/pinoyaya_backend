@@ -171,13 +171,13 @@ exports.setPassword = async (req, res) => {
     }
 };
 
-exports.getUsersCount = async (req, res) => {
+exports.getUsers = async (req, res) => {
     try {
-        const count = await adminService.getUsersCount();
+        const users = await adminService.getUsers();
         
         res.json({
             success: true,
-            data:count
+            data:users
         });
     } catch (err) {
         res.status(404).json({ error: err.message });
