@@ -13,7 +13,7 @@ router.post('/resetpassword', babysitterController.resetPassword);
 router.post('/forgetpassword', babysitterController.forgetPassword);
 router.post('/uploadimages', auth, babysitterController.uploadImages);
 router.get('/filter', auth, babysitterController.getBabysittersByFilter);
-router.get('/', auth, babysitterController.getAll);
+router.get('/', adminAuth, babysitterController.getAll);
 router.get('/type/:type', auth, babysitterController.getBabysittersByType);
 router.get('/:id', auth, babysitterController.getById);
 router.patch('/:id', auth, babysitterController.update);
