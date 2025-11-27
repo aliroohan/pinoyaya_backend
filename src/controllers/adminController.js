@@ -98,12 +98,13 @@ exports.getAdminById = async (req, res) => {
 // Update admin
 exports.updateAdmin = async (req, res) => {
     try {
-        const { name, email, phone } = req.body;
+        const { name, email, phone, role } = req.body;
         const updateData = {};
         
         if (name) updateData.name = name;
         if (email) updateData.email = email;
         if (phone) updateData.phone = phone;
+        if (role) updateData.role = role;
         
         const admin = await adminService.updateAdmin(req.params.id, updateData);
         
