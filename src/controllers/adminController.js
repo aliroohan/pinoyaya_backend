@@ -12,7 +12,7 @@ exports.login = async (req, res) => {
         }
         
         const result = await adminService.login(email, password);
-        const token = jwt.sign({ id: result._id }, process.env.JWT_SECRET);
+        const token = jwt.sign(result.admin, process.env.JWT_SECRET);
         
         res.json({
             success: true,
