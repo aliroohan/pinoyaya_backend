@@ -1,6 +1,8 @@
 const Admin = require('../models/admin');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const Customer = require('../models/customer');
+const Babysitter = require('../models/babysitter');
 
 // Generate JWT token for admin
 const generateToken = (adminId) => {
@@ -121,4 +123,11 @@ exports.setPassword = async (id, password) => {
     await admin.save();
     
     return { message: 'Password set successfully' };
+};
+
+exports.getUsersCount = async () => {
+    
+    const customerCount = await Customer.countDocuments();
+    const babysitterCount = await Babysitter.countDocuments();
+    return { customerCount, babysitterCount };
 };
