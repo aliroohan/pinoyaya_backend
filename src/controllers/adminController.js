@@ -19,7 +19,7 @@ exports.login = async (req, res) => {
             message: 'Admin login successful',
             token:token,
             data:result,
-            role: result.role
+            role: result.admin.role
         });
     } catch (err) {
         res.status(401).json({ error: err.message });
