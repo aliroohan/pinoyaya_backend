@@ -9,7 +9,7 @@ router.patch('/set-password', adminController.setPassword);
 router.post('/login', adminController.login);
 router.post('/create', adminController.createAdmin);
 router.get('/profile', adminAuth, adminController.getProfile);
-router.get('/usersCount', adminAuth, adminController.getUsersCount);
+router.get('/users', adminAuth, adminController.getUsersCount);
 router.get('/', adminAuth, checkRole('admin'), adminController.getAllAdmins);
 router.get('/:id', adminAuth, checkRole('admin'), adminController.getAdminById);
 router.patch('/:id', adminAuth, checkRole('admin'), adminController.updateAdmin);

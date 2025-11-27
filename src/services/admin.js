@@ -125,9 +125,9 @@ exports.setPassword = async (id, password) => {
     return { message: 'Password set successfully' };
 };
 
-exports.getUsersCount = async () => {
+exports.getUsers = async () => {
     
-    const customerCount = await Customer.countDocuments();
-    const babysitterCount = await Babysitter.countDocuments();
-    return { customerCount, babysitterCount };
+    const customers = await Customer.find();
+    const babysitters = await Babysitter.find();
+    return { customers, babysitters, customerCount: customers.length, babysitterCount: babysitters.length };
 };
