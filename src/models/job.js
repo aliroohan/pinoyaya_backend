@@ -27,6 +27,15 @@ const jobSchema = new mongoose.Schema({
 
 jobSchema.pre('save', async function(next) {
     try {
+        // Fetch rate from babysitter if not present
+        if (!this.rate && this.babysitterId) {
+            const Babysitter = mongoose.model('Babysitter');
+            const babysitter = await Babysitter.findById(this.babysitterId);
+            if (babysitter && babysitter.rate) {
+                this.rate = babysitter.rate;
+            }
+        }
+
         // For fulltime jobs - update dates and calculate based on actual work period
         if(this.isFulltime) {
             // When status changes to 'ongoing', set startDate to now
@@ -46,6 +55,7 @@ jobSchema.pre('save', async function(next) {
             }
         }
         
+
         // For part-time jobs with specific time slots
         if(!this.isFulltime && this.startTime && this.endTime && this.startDate && this.endDate) {
             const days = ((this.endDate - this.startDate) / (1000 * 60 * 60 * 24)) + 1;
