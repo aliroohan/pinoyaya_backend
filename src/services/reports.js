@@ -6,15 +6,15 @@ exports.createReport = async (report) => {
 }
 
 exports.getAllReports = async () => {
-    return await Reports.find();
+    return await Reports.find({status: "pending"}).populate("reporter").populate("reported");
 }
 
 exports.getReportById = async (id) => {
-    return await Reports.findById(id);
+    return await Reports.findById(id).populate("reporter").populate("reported");
 }
 
 exports.getReportsByStatus = async (status) => {
-    return await Reports.find({ status: status });
+    return await Reports.find({ status: status }).populate("reporter").populate("reported");
 }
 
 exports.updateReport = async (id, report) => {
