@@ -17,3 +17,8 @@ exports.getChats = async (req, res) => {
     const chat = await chatService.getChatsById(user);
     res.status(200).json(chat);
 }
+
+exports.getAllChats = async (req, res) => {
+    const chat = await chatService.getAllChats();
+    res.status(200).json(chat);
+}

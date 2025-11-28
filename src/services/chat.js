@@ -19,3 +19,9 @@ exports.getChatsById = async (user) => {
         return chats;
     }
 };
+
+exports.getAllChats = async () => {
+    const chats = await chatModel.find().populate("customerId").populate("babysitterId").populate("lastMessageId").sort({ updatedAt: -1 });
+    return chats;
+}
+
