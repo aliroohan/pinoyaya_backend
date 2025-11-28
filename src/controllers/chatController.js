@@ -22,3 +22,9 @@ exports.getAllChats = async (req, res) => {
     const chat = await chatService.getAllChats();
     res.status(200).json(chat);
 }
+
+exports.getConversationByChatId = async (req, res) => {
+    const chatId = req.params.chatId;
+    const chat = await chatService.getConversationByChatId(chatId);
+    res.status(200).json(chat);
+}
