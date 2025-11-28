@@ -102,9 +102,7 @@ exports.changePassword = async (id, currentPassword, newPassword) => {
         throw new Error('Current password is incorrect');
     }
     
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(newPassword, salt);
-    admin.password = hashedPassword;
+    admin.password = newPassword;
     await admin.save();
     
     return { message: 'Password changed successfully' };
@@ -117,9 +115,7 @@ exports.setPassword = async (id, password) => {
         throw new Error('Admin not found');
     }
     
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-    admin.password = hashedPassword;
+    admin.password = password;
     await admin.save();
     
     return { message: 'Password set successfully' };
