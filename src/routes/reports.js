@@ -1,13 +1,13 @@
 const express = require("express");
 const router = express.Router();
-const adminAuth = require("../middleware/adminAuth");
+const {adminAuth, checkRole} = require("../middleware/adminAuth");
 const reportsController = require("../controllers/reportsController");
 
 router.post("/", reportsController.createReport);
-router.get("/", adminAuth, reportsController.getAllReports);
-router.get("/status/:status", adminAuth, reportsController.getReportsByStatus);
-router.get("/:id", reportsController.getReportById);
-router.put("/:id", reportsController.updateReport);
-router.delete("/:id", reportsController.deleteReport);
+router.get("/", adminAuth, checkRole(['admin', "reports"]), reportsController.getAllReports);
+router.get("/status/:status", adminAuth, checkRole(['admin', "reports"]), reportsController.getReportsByStatus);
+router.get("/:id", adminAuth, checkRole(['admin', "reports"]), reportsController.getReportById);
+router.put("/:id", adminAuth, checkRole(['admin', "reports"]), reportsController.updateReport);
+router.delete("/:id", adminAuth, checkRole(['admin', "reports"]), reportsController.deleteReport);
 
 module.exports = router;

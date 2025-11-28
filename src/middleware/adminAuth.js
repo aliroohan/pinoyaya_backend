@@ -17,13 +17,13 @@ module.exports.adminAuth = (req, res, next) => {
         next();
         
     } catch (error) {
-        res.status(401).json({ error: 'Access denied. Invalid token.' });
+        res.status(401).json({ success: false, message: 'Access denied. Invalid token.' });
     }
 };
 
 module.exports.checkRole = (role) => {
     return (req, res, next) => {
-        if (req.admin.role !== role) {
+        if (!role.includes(req.admin.role)) {
             return res.status(401).json({ error: 'Access denied. Invalid role.' });
         }
         next();

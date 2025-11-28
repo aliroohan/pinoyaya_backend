@@ -10,9 +10,9 @@ router.post('/login', adminController.login);
 router.post('/create', adminController.createAdmin);
 router.get('/profile', adminAuth, adminController.getProfile);
 router.get('/users', adminAuth, adminController.getUsers);
-router.get('/', adminAuth, checkRole('admin'), adminController.getAllAdmins);
-router.get('/:id', adminAuth, checkRole('admin'), adminController.getAdminById);
-router.patch('/:id', adminAuth, checkRole('admin'), adminController.updateAdmin);
-router.delete('/:id', adminAuth, checkRole('admin'), adminController.deleteAdmin);
+router.get('/', adminAuth, checkRole(['admin']), adminController.getAllAdmins);
+router.get('/:id', adminAuth, checkRole(['admin']), adminController.getAdminById);
+router.patch('/:id', adminAuth, checkRole(['admin']), adminController.updateAdmin);
+router.delete('/:id', adminAuth, checkRole(['admin']), adminController.deleteAdmin);
 
 module.exports = router; 
