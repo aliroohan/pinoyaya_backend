@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const babysitterController = require('../controllers/babysitterController');
 const auth = require('../middleware/auth');
-const {adminAuth} = require('../middleware/adminAuth');
+const { adminAuth } = require('../middleware/adminAuth');
 
 router.post('/signup', babysitterController.signup);
 router.post('/login', babysitterController.login);
@@ -17,7 +17,9 @@ router.get('/', adminAuth, babysitterController.getAll);
 router.get('/type/:type', auth, babysitterController.getBabysittersByType);
 router.get('/:id', auth, babysitterController.getById);
 router.patch('/:id', auth, babysitterController.update);
+router.patch('/:id/block', adminAuth, babysitterController.blockBabysitter);
+router.patch('/:id/unblock', adminAuth, babysitterController.unblockBabysitter);
 router.delete('/:id', auth, babysitterController.delete);
 router.patch('/verifydocs', adminAuth, babysitterController.verifyDocs);
 
-module.exports = router; 
+module.exports = router;

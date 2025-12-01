@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const customerController = require('../controllers/customerController');
 const auth = require('../middleware/auth');
-const {adminAuth} = require('../middleware/adminAuth');
+const { adminAuth } = require('../middleware/adminAuth');
 
 router.post('/login', customerController.login);
 router.post('/signup', customerController.signup);
@@ -15,7 +15,9 @@ router.post('/uploadimages', auth, customerController.uploadImages);
 router.get('/', adminAuth, customerController.getAll);
 router.get('/:id', auth, customerController.getById);
 router.patch('/:id', auth, customerController.update);
+router.patch('/:id/block', adminAuth, customerController.blockCustomer);
+router.patch('/:id/unblock', adminAuth, customerController.unblockCustomer);
 router.delete('/:id', auth, customerController.delete);
 router.patch('/verifydocs', adminAuth, customerController.verifyDocs);
 
-module.exports = router; 
+module.exports = router;

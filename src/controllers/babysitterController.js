@@ -46,6 +46,9 @@ exports.login = async (req, res) => {
         if (!babysitter) {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
+        if (babysitter.isBlocked) {
+            return res.status(401).json({ message: 'Your account is blocked' });
+        }
         const isMatch = await bcrypt.compare(password, babysitter.password);
         if (!isMatch) {
             return res.status(401).json({ message: 'Invalid credentials' });
@@ -68,7 +71,8 @@ exports.login = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
-exports.verifyEmail = async (req, res) =>  {
+
+exports.verifyEmail = async (req, res) => {
     const { email, code } = req.body;
     try {
         const babysitter = await verifyEmail(email, code);
@@ -94,26 +98,28 @@ exports.resendEmail = async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 }
+
 exports.uploadImages = [
     upload.fields([{ name: 'photo' }, { name: 'front' }, { name: 'back' }]),
     async (req, res) => {
-    try {
-        const babysitterId = req.user._id;
-        let frontImageUrl = null;
-        let backImageUrl = null;
-        if (req.files.front && req.files.back) {
-            frontImageUrl = await uploadImage(req.files.front[0].buffer, req.files.front[0].originalname, req.files.front[0].mimetype);
-            backImageUrl = await uploadImage(req.files.back[0].buffer, req.files.back[0].originalname, req.files.back[0].mimetype);
+        try {
+            const babysitterId = req.user._id;
+            let frontImageUrl = null;
+            let backImageUrl = null;
+            if (req.files.front && req.files.back) {
+                frontImageUrl = await uploadImage(req.files.front[0].buffer, req.files.front[0].originalname, req.files.front[0].mimetype);
+                backImageUrl = await uploadImage(req.files.back[0].buffer, req.files.back[0].originalname, req.files.back[0].mimetype);
+            }
+            if (req.files.photo) {
+                photoUrl = await uploadImage(req.files.photo[0].buffer, req.files.photo[0].originalname, req.files.photo[0].mimetype);
+            }
+            const babysitter = await updateBabysitter(babysitterId, { photoUrl: photoUrl, verificationIdPhotoUrls: [frontImageUrl, backImageUrl] });
+            res.status(200).json({ status: "success", data: babysitter });
+        } catch (err) {
+            res.status(500).json({ message: err.message });
         }
-        if (req.files.photo) {
-            photoUrl = await uploadImage(req.files.photo[0].buffer, req.files.photo[0].originalname, req.files.photo[0].mimetype);
-        }
-        const babysitter = await updateBabysitter(babysitterId, { photoUrl: photoUrl, verificationIdPhotoUrls: [frontImageUrl, backImageUrl] });
-        res.status(200).json({ status: "success", data: babysitter });
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
-}];
+    }];
+
 exports.resetPassword = async (req, res) => {
     const { email, password } = req.body;
     try {
@@ -146,10 +152,11 @@ exports.forgetPassword = async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 }
+
 exports.getAll = async (req, res) => {
     try {
         const babysitters = await getAllBabysitters();
-        res.status(200).json({status: "success", data: babysitters});
+        res.status(200).json({ status: "success", data: babysitters });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
@@ -159,28 +166,29 @@ exports.getBabysittersByType = async (req, res) => {
     try {
         const { type } = req.params;
         const babysitters = await getBabysittersByType(type);
-        res.status(200).json({status: "success", data: babysitters});
+        res.status(200).json({ status: "success", data: babysitters });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
 }
+
 exports.getBabysittersByFilter = async (req, res) => {
     try {
         const { radius, available } = req.query;
         const user = req.user;
-        
+
         const radiusKm = parseFloat(radius);
         const availableFilter = available !== undefined ? available === 'true' : undefined;
 
         const babysitters = await getBabysittersByFilter(radiusKm, availableFilter, user);
-        
+
         res.status(200).json({
             success: true,
             count: babysitters.length,
             filters: {
                 radius: radiusKm,
                 available: availableFilter,
-                availabilityLogic: availableFilter === true ? 
+                availabilityLogic: availableFilter === true ?
                     'Shows only available babysitters (not in ongoing jobs)' :
                     'Shows all babysitters in radius'
             },
@@ -204,6 +212,7 @@ exports.getById = async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 };
+
 exports.update = async (req, res) => {
     try {
         const { id } = req.params;
@@ -217,6 +226,7 @@ exports.update = async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 };
+
 exports.delete = async (req, res) => {
     try {
         const { id } = req.params;
@@ -229,6 +239,7 @@ exports.delete = async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 };
+
 exports.verifyDocs = async (req, res) => {
     try {
         const { id } = req.params;
@@ -237,6 +248,32 @@ exports.verifyDocs = async (req, res) => {
             return res.status(404).json({ message: 'Babysitter not found' });
         }
         res.status(200).json({ status: "success", message: 'Documents verified successfully', babysitter });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
+
+exports.blockBabysitter = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const babysitter = await updateBabysitter(id, { isBlocked: true });
+        if (!babysitter) {
+            return res.status(404).json({ message: 'Babysitter not found' });
+        }
+        res.status(200).json({ status: "success", message: 'Babysitter blocked successfully', data: babysitter });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
+
+exports.unblockBabysitter = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const babysitter = await updateBabysitter(id, { isBlocked: false });
+        if (!babysitter) {
+            return res.status(404).json({ message: 'Babysitter not found' });
+        }
+        res.status(200).json({ status: "success", message: 'Babysitter unblocked successfully', data: babysitter });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }

@@ -19,6 +19,9 @@ exports.login = async (req, res) => {
         if (!customer.emailVerified) {
             return res.status(401).json({ message: 'Email not verified' });
         }
+        if (customer.isBlocked) {
+            return res.status(401).json({ message: 'Your account is blocked' });
+        }
         const isMatch = await bcrypt.compare(password, customer.password);
         if (!isMatch) {
             return res.status(401).json({ message: 'wrong password!' });
@@ -34,13 +37,14 @@ exports.login = async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 };
+
 exports.signup = async (req, res) => {
     const { firstName, lastName, email, phone, password } = req.body;
     try {
         const existingCustomer = await customerModel.findOne({ email: email, phone: phone });
         if (existingCustomer) {
             return res.status(400).json({ message: 'Email or phone already exists' });
-        }   
+        }
         const emailVerificationCode = Math.floor(100000 + Math.random() * 900000);
         const customer = await createCustomer({ firstName, lastName, email, phone, password, emailVerificationCode });
         const emailResponse = await sendOtpEmail(customer.email, emailVerificationCode, customer.firstName);
@@ -99,24 +103,24 @@ exports.childAndPets = async (req, res) => {
 exports.uploadImages = [
     upload.fields([{ name: 'photo' }, { name: 'front' }, { name: 'back' }]),
     async (req, res) => {
-    try {
-        const customerId = req.user._id;
-        let frontImageUrl = null;
-        let backImageUrl = null;
-        let photoUrl = null;
-        if (req.files.front && req.files.back) {
-            frontImageUrl = await uploadImage(req.files.front[0].buffer, req.files.front[0].originalname, req.files.front[0].mimetype);
-            backImageUrl = await uploadImage(req.files.back[0].buffer, req.files.back[0].originalname, req.files.back[0].mimetype);
+        try {
+            const customerId = req.user._id;
+            let frontImageUrl = null;
+            let backImageUrl = null;
+            let photoUrl = null;
+            if (req.files.front && req.files.back) {
+                frontImageUrl = await uploadImage(req.files.front[0].buffer, req.files.front[0].originalname, req.files.front[0].mimetype);
+                backImageUrl = await uploadImage(req.files.back[0].buffer, req.files.back[0].originalname, req.files.back[0].mimetype);
+            }
+            if (req.files.photo) {
+                photoUrl = await uploadImage(req.files.photo[0].buffer, req.files.photo[0].originalname, req.files.photo[0].mimetype);
+            }
+            const customer = await updateCustomer(customerId, { photoUrl: photoUrl, verificationIdPhotoUrls: [frontImageUrl, backImageUrl] });
+            res.status(200).json({ status: "success", data: customer });
+        } catch (err) {
+            res.status(500).json({ message: err.message });
         }
-        if (req.files.photo) {
-            photoUrl = await uploadImage(req.files.photo[0].buffer, req.files.photo[0].originalname, req.files.photo[0].mimetype);
-        }
-        const customer = await updateCustomer(customerId, { photoUrl: photoUrl, verificationIdPhotoUrls: [frontImageUrl, backImageUrl] });
-        res.status(200).json({ status: "success", data: customer });
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
-}];
+    }];
 
 
 exports.resendEmail = async (req, res) => {
@@ -168,21 +172,23 @@ exports.forgetPassword = async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 }
+
 exports.getAll = async (req, res) => {
     try {
         const customers = await getAllCustomers();
-        res.status(200).json({success: true, data: customers});
+        res.status(200).json({ success: true, data: customers });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
 }
+
 exports.getById = async (req, res) => {
     const { id } = req.params;
     const customer = await getCustomerById(id);
     if (!customer) {
         return res.status(400).json({ success: false, message: 'Customer not found' });
     }
-    res.status(200).json({success: true, data: customer});
+    res.status(200).json({ success: true, data: customer });
 }
 
 exports.update = async (req, res) => {
@@ -198,6 +204,7 @@ exports.update = async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 }
+
 exports.delete = async (req, res) => {
     const { id } = req.params;
     const customer = await deleteCustomer(id);
@@ -214,4 +221,30 @@ exports.verifyDocs = async (req, res) => {
         message: 'Customer verify docs successfully',
         customer
     });
+}
+
+exports.blockCustomer = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const customer = await updateCustomer(id, { isBlocked: true });
+        res.status(200).json({
+            message: 'Customer blocked successfully',
+            customer
+        });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+}
+
+exports.unblockCustomer = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const customer = await updateCustomer(id, { isBlocked: false });
+        res.status(200).json({
+            message: 'Customer unblocked successfully',
+            customer
+        });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
 }
