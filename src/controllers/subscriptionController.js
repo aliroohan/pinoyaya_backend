@@ -1,7 +1,7 @@
 const subscriptionService = require('../services/subscription');
 const multer = require('multer');
 const fs = require('fs');
-const upload = multer({ dest: 'uploads/' });
+const upload = multer({ dest: 'tmp/' });
 
 exports.subscribe = async (req, res) => {
   try {
