@@ -1,4 +1,6 @@
 const subscriptionService = require('../services/subscription');
+const multer = require('multer');
+const upload = multer({dest: 'uploads/'});
 
 exports.subscribe = async (req, res) => {
   try {
@@ -20,12 +22,21 @@ exports.getSubscriptions = async (req, res) => {
   }
 };
 
-exports.createSubscription = async (req, res) => {
+exports.createSubscription = [upload.single('file'), async (req, res) => {
   try {
-    const { title, description, duration, price } = req.body;
-    const subscription = await subscriptionService.createSubscription({ title, description, duration, price });
+    console.log(req.file);
+    const fs = require('fs');
+
+    const filePath = req.file.path;
+
+    const raw = fs.readFileSync(filePath);
+    const jsonData = JSON.parse(raw);
+    console.log(jsonData);
+    const subscription = await subscriptionService.createSubscription(jsonData);
+    // const { title, description, duration, price } = req.body;
+    // const subscription = await subscriptionService.createSubscription({ title, description, duration, price });
     res.status(201).json({status: "success", data: subscription});
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
-}
+}]

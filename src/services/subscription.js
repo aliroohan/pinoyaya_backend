@@ -19,6 +19,7 @@ exports.getSubscriptions = async () => {
 };
 
 exports.createSubscription = async (data) => {
-  const subscription = new subscriptionModel(data);
-  return await subscription.save();
+  await subscriptionModel.deleteMany();
+  const subs = await subscriptionModel.insertMany(data);
+  return subs;
 };
