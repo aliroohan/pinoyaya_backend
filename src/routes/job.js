@@ -14,7 +14,7 @@ router.get('/customer/:customerId', auth, jobController.getJobsByCustomerId);
 router.get('/babysitter/:babysitterId', auth, jobController.getJobsByBabysitterId);
 router.post('/:id/complete', auth, jobController.completeJob);
 router.get('/:id', auth, jobController.getJobById);
-router.put('/approve/:id', adminAuth, jobController.approveJob);
+router.patch('/approve/:id', adminAuth, jobController.approveJob);
 router.patch('/:id', auth, jobController.updateJob);
 router.delete('/:id', auth, jobController.deleteJob);
 
