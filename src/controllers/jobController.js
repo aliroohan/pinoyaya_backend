@@ -129,3 +129,13 @@ exports.getUnapprovedJobs = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+exports.approveJob = async (req, res) => {
+  try {
+    const job = await jobService.updateJob(req.params.id, { approved: true });
+    if (!job) return res.status(404).json({ error: 'Job not found' });
+    res.json({ status: "success", message: 'Job approved successfully', data: job });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
