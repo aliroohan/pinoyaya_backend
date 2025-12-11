@@ -23,6 +23,7 @@ const jobSchema = new mongoose.Schema({
     reviewed: { type: Boolean, default: false },
     platformFee: { type: Number, default: 100 }, // Platform service fee
     babysitterEarning: { type: Number }, // Amount babysitter earns (price - platformFee)
+    approved: { type: Boolean, default: false },
 }, { timestamps: true });
 
 jobSchema.pre('save', async function(next) {

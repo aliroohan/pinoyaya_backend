@@ -25,7 +25,7 @@ const socketHandler = (io) => {
     });
 
     io.on('connection', async (socket) => {
-        console.log(`User connected: ${socket.userId} (${socket.userRole})`);
+        console.log(`User connected: ${socket.userId} (${socket.userRole}) ${Date().toLocaleString()}`);
         
         // Store user connection
         connectedUsers.set(socket.userId, {

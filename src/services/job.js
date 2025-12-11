@@ -115,3 +115,8 @@ exports.completeJob = async (id) => {
   await job.save();
   return job;
 }; 
+
+exports.getUnapprovedJobs = async () => {
+  const jobs = await jobModel.find({status: 'available', approved: false}).populate('customerId').populate('babysitterId').populate('location');
+  return jobs;
+};

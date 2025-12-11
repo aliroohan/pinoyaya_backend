@@ -1,6 +1,7 @@
 const jobService = require('../services/job');
 const requestService = require('../services/request');
 
+
 exports.createJob = async (req, res) => {
   try {
     const customerId = req.user._id;
@@ -119,3 +120,12 @@ exports.completeJob = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 }; 
+
+exports.getUnapprovedJobs = async (req, res) => {
+  try {
+    const jobs = await jobService.getUnapprovedJobs();
+    res.json({message: "Jobs fetched successfully", data: jobs});
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};

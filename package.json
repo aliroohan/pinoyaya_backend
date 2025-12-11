@@ -4,8 +4,8 @@
   "description": "Backend API for Pinoyaya babysitting platform",
   "main": "src/app.js",
   "scripts": {
-    "start": "node src/app.js",
-    "dev": "nodemon src/app.js"
+    "start": "bun src/app.js",
+    "dev": "bun --watch src/app.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.859.0",
@@ -22,7 +22,8 @@
     "nodemailer": "^7.0.5",
     "socket.io": "^4.7.2",
     "stripe": "^13.5.0",
-    "twilio": "^5.8.0"
+    "twilio": "^5.8.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "chai": "^4.5.0",

@@ -2,9 +2,11 @@ const express = require('express');
 const router = express.Router();
 const jobController = require('../controllers/jobController');
 const auth = require('../middleware/auth');
+const {adminAuth}    = require('../middleware/adminAuth');
 
 router.post('/',auth, jobController.createJob);
 router.get('/', jobController.getJobs);
+router.get('/getUnapprovedJobs', adminAuth, jobController.getUnapprovedJobs);
 router.get('/postedJobs', auth, jobController.getPostedJobs);
 router.get('/instantJobs', auth, jobController.getInstantJobs);
 router.post('/hire', auth, jobController.hireBabysitter);

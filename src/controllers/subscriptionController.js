@@ -1,5 +1,6 @@
 const subscriptionService = require('../services/subscription');
 const multer = require('multer');
+const xlsx = require('xlsx');
 const fs = require('fs');
 const upload = multer({ dest: '/tmp' });
 
@@ -31,8 +32,11 @@ exports.createSubscription = [upload.single('file'), async (req, res) => {
   const filePath = req.file.path;
 
   try {
-    const raw = fs.readFileSync(filePath);
-    const jsonData = JSON.parse(raw);
+    const workbook = xlsx.readFile(filePath);
+    const sheetName = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[sheetName];
+    const jsonData = xlsx.utils.sheet_to_json(worksheet);
+    console.log(jsonData)
     const subscription = await subscriptionService.createSubscription(jsonData);
     res.status(201).json({ status: "success", data: subscription });
   } catch (err) {
